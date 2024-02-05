@@ -1,9 +1,11 @@
-import Dashboard from './(app)/(dashboard)/users/page'
-
+import Template from '@/app/(app)/(dashboard)/template'
+import Dashboard from '@/app/(app)/(dashboard)/cars/page'
 export default function Home() {
   return (
     <div>
-      <Dashboard />
+      <Template>
+        <Dashboard />
+      </Template>
     </div>
   )
 }

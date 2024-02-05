@@ -1,3 +1,9 @@
 export default function Settings() {
-  return <h1>settings</h1>
+  return (
+    <div className="px-[320px]">
+      <main>
+        <h1>Settings</h1>
+      </main>
+    </div>
+  )
 }

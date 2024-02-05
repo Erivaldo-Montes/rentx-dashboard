@@ -1,10 +1,12 @@
 import { Header } from '@/components/header'
-export default function Dashboard() {
+
+export default function Users() {
   return (
-    <>
-      <div className="flex flex-1 bg-gray-100">
-        <Header />
-      </div>
-    </>
+    <div>
+      <Header />
+      <main className="px-[320px]">
+        <h1>sda</h1>
+      </main>
+    </div>
   )
 }
