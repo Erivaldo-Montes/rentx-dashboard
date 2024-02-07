@@ -1,5 +1,6 @@
 import { Header } from '@/components/header'
 import { Plus, MagnifyingGlass } from '@phosphor-icons/react/dist/ssr'
+import { CarList } from '@/components/carsList'
 
 export default function Cars() {
   return (
@@ -24,83 +25,8 @@ export default function Cars() {
             />
           </div>
         </div>
-        <p className="text-sm mt-[5rem]">Lista de carros</p>
-        <table className="w-full table-fixed">
-          <thead className="w-full">
-            <tr className=" bg-gray-300 flex rounded-t-lg w-full justify-between ">
-              <th className="p-2 w-40 ">Nome</th>
-              <th className="p-2  w-40">Marca</th>
-              <th className="p-2 w-40"> Diária</th>
-              <th className="p-2 w-40">Placa</th>
-              <th className="rounded-tr-lg p-2 w-40">Disponível</th>
-            </tr>
-          </thead>
-          <tbody className="overflow-auto block   h-[30rem]">
-            <tr className="border-b-[1px] w-full flex  p-2 justify-between  bg-white">
-              <td className="text-center p-2 w-40">Onix</td>
-              <td className="text-center p-2 w-40">Chevrolet d</td>
-              <td className="text-center p-2 w-40">R$ 120.00</td>
-              <td className="text-center p-2 w-40">FGD-3561</td>
-              <td className="text-center p-2 w-40">sim</td>
-            </tr>
-            <tr className="border-b-[1px] w-full flex  p-2 justify-between  bg-white">
-              <td className="text-center p-2 w-40">Onix</td>
-              <td className="text-center p-2 w-40">Chevrolet d</td>
-              <td className="text-center p-2 w-40">R$ 120.00</td>
-              <td className="text-center p-2 w-40">FGD-3561</td>
-              <td className="text-center p-2 w-40">sim</td>
-            </tr>
-            <tr className="border-b-[1px] w-full flex  p-2 justify-between  bg-white">
-              <td className="text-center p-2 w-40">Onix</td>
-              <td className="text-center p-2 w-40">Chevrolet d</td>
-              <td className="text-center p-2 w-40">R$ 120.00</td>
-              <td className="text-center p-2 w-40">FGD-3561</td>
-              <td className="text-center p-2 w-40">sim</td>
-            </tr>
-            <tr className="border-b-[1px] w-full flex  p-2 justify-between  bg-white">
-              <td className="text-center p-2 w-40">Onix</td>
-              <td className="text-center p-2 w-40">Chevrolet d</td>
-              <td className="text-center p-2 w-40">R$ 120.00</td>
-              <td className="text-center p-2 w-40">FGD-3561</td>
-              <td className="text-center p-2 w-40">sim</td>
-            </tr>
-            <tr className="border-b-[1px] w-full flex  p-2 justify-between  bg-white">
-              <td className="text-center p-2 w-40">Onix</td>
-              <td className="text-center p-2 w-40">Chevrolet d</td>
-              <td className="text-center p-2 w-40">R$ 120.00</td>
-              <td className="text-center p-2 w-40">FGD-3561</td>
-              <td className="text-center p-2 w-40">sim</td>
-            </tr>
-            <tr className="border-b-[1px] w-full flex  p-2 justify-between  bg-white">
-              <td className="text-center p-2 w-40">Onix</td>
-              <td className="text-center p-2 w-40">Chevrolet d</td>
-              <td className="text-center p-2 w-40">R$ 120.00</td>
-              <td className="text-center p-2 w-40">FGD-3561</td>
-              <td className="text-center p-2 w-40">sim</td>
-            </tr>
-            <tr className="border-b-[1px] w-full flex  p-2 justify-between  bg-white">
-              <td className="text-center p-2 w-40">Onix</td>
-              <td className="text-center p-2 w-40">Chevrolet d</td>
-              <td className="text-center p-2 w-40">R$ 120.00</td>
-              <td className="text-center p-2 w-40">FGD-3561</td>
-              <td className="text-center p-2 w-40">sim</td>
-            </tr>
-            <tr className="border-b-[1px] w-full flex  p-2 justify-between  bg-white">
-              <td className="text-center p-2 w-40">Onix</td>
-              <td className="text-center p-2 w-40">Chevrolet d</td>
-              <td className="text-center p-2 w-40">R$ 120.00</td>
-              <td className="text-center p-2 w-40">FGD-3561</td>
-              <td className="text-center p-2 w-40">sim</td>
-            </tr>
-            <tr className="border-b-[1px] w-full flex  p-2 justify-between  bg-white">
-              <td className="text-center p-2 w-40">Onix</td>
-              <td className="text-center p-2 w-40">Chevrolet d</td>
-              <td className="text-center p-2 w-40">R$ 120.00</td>
-              <td className="text-center p-2 w-40">FGD-3561</td>
-              <td className="text-center p-2 w-40">sim</td>
-            </tr>
-          </tbody>
-        </table>
+        <p className="text-sm mt-[2rem]">Lista de carros</p>
+        <CarList />
       </main>
     </div>
   )
