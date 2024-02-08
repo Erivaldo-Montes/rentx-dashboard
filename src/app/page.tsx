@@ -1,11 +1,13 @@
-import Template from '@/app/(app)/(dashboard)/template'
-import Dashboard from '@/app/(app)/(dashboard)/cars/page'
+import Link from 'next/link'
+
 export default function Home() {
   return (
-    <div>
-      <Template>
-        <Dashboard />
-      </Template>
-    </div>
+    <>
+      <div>
+        <Link href={'/cars'}>
+          <h1>cars</h1>
+        </Link>
+      </div>
+    </>
   )
 }

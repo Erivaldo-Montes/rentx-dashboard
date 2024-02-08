@@ -1,22 +1,20 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { use, useEffect, useState } from 'react'
 import { CaretLeft, CaretRight } from '@phosphor-icons/react'
 import { Loading } from './loading'
-import { toast, ToastContainer, Bounce } from 'react-toastify'
-
 interface CarsProps {
   id: string
   name: string
-  brand: string
-  daily_rate: number
-  license_plate: string
+  email: string
+  driver_license: string
+  role: 'USER' | 'ADMIN'
 }
 
 export function CarList() {
   const [currentPage, setCurrentPage] = useState(1)
-  const [cars, setCars] = useState([] as CarsProps[])
+  const [users, setUsers] = useState([] as CarsProps[])
   const [isFetching, setIsFetching] = useState(true)
-  const [nextPageCars, setNextPageCars] = useState([] as CarsProps[])
+  const [nextPageUsers, setNextPageUsers] = useState([] as CarsProps[])
 
   function nextPage() {
     setCurrentPage((state) => state + 1)
@@ -25,22 +23,15 @@ export function CarList() {
   function previousPage() {
     setCurrentPage((state) => state - 1)
   }
-
   useEffect(() => {
-    fetch(`http://localhost:3000/api/list-car?page=${currentPage}`, {
+    fetch(`http://localhost:3000/api/list-users?page=${currentPage}`, {
       method: 'GET',
-    })
-      .then((response) => response.json().then((data) => setCars(data.cars)))
-      .catch(() =>
-        toast.error('server error', {
-          position: 'top-right',
-        }),
-      )
+    }).then((response) => response.json().then((data) => setUsers(data.cars)))
 
-    fetch(`http://localhost:3000/api/list-car?page=${currentPage + 1}`, {
+    fetch(`http://localhost:3000/api/list-users?page=${currentPage + 1}`, {
       method: 'GET',
     }).then((response) =>
-      response.json().then((data) => setNextPageCars(data.cars)),
+      response.json().then((data) => setNextPageUsers(data.cars)),
     )
 
     setIsFetching(false)
@@ -54,17 +45,19 @@ export function CarList() {
         </div>
       ) : (
         <div className="overflow-auto  h-[30rem] bg-white">
-          {cars.map((cars) => {
+          {users.map((user) => {
             return (
               <div
-                key={cars.id}
+                key={user.id}
                 className="border-b-[1px] w-full flex  p-2 justify-between  bg-white"
               >
-                <div className="text-center p-2 w-40">{cars.name}</div>
-                <div className="text-center p-2 w-40">{cars.brand}</div>
-                <div className="text-center p-2 w-40">R$ {cars.daily_rate}</div>
-                <div className="text-center p-2 w-40">{cars.license_plate}</div>
-                <div className="text-center p-2 w-40">sim</div>
+                <div className="text-center p-2 w-40">{user.id}</div>
+                <div className="text-center p-2 w-40">{user.name}</div>
+                <div className="text-center p-2 w-40">R$ {user.email}</div>
+                <div className="text-center p-2 w-40">
+                  {user.driver_license}
+                </div>
+                <div className="text-center p-2 w-40">{user.role}</div>
               </div>
             )
           })}
@@ -93,7 +86,7 @@ export function CarList() {
           <p className="text-white text-center text-xs">{currentPage}</p>
         </div>
 
-        {nextPageCars.length === 0 ? null : (
+        {nextPageUsers.length === 0 ? null : (
           <>
             <p
               className="text-black text-center text-xs hover:cursor-pointer"
