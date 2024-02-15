@@ -1,27 +1,38 @@
 'use client'
 import { PhotoSvg } from '@/components/icons/photo'
 import { ArrowLeft, Plus } from '@phosphor-icons/react/dist/ssr'
-import { useForm } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useState, ChangeEvent } from 'react'
+import { useState, ChangeEvent, useEffect } from 'react'
+import { Input } from '@/components/input'
+
+enum CategoriesEnum {
+  SUV = 'SUV',
+  sedan = 'sedan',
+  espotivo = 'esportivo',
+}
 
 const schema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
   brand: z.string().min(1, 'Marca é obrigatório'),
   daily_rate: z.string().min(1, 'Diária é obrigatória'),
   license_plate: z.string().min(1, 'Placa é obrigatório'),
-  about: z.string(),
+  about: z.string().min(1),
+  category: z.nativeEnum(CategoriesEnum),
 })
 
 type CreateCarDataSchema = z.infer<typeof schema>
 
 export default function CreateCar() {
-  const [daily, setDaily] = useState<string>()
+  const [daily, setDaily] = useState<string>('')
+
   const {
     register,
     handleSubmit,
     watch,
+    control,
+    setValue,
     formState: { errors },
   } = useForm<CreateCarDataSchema>({
     resolver: zodResolver(schema),
@@ -33,6 +44,7 @@ export default function CreateCar() {
       name: '',
     },
   })
+  const selectCategory = watch('category')
 
   function handleCreateCar(data: CreateCarDataSchema) {
     const value = data.daily_rate.match(/\d+/g)
@@ -64,8 +76,12 @@ export default function CreateCar() {
     setDaily(formatedValue)
   }
 
+  useEffect(() => {
+    setValue('daily_rate', daily)
+  }, [daily, setValue])
+
   return (
-    <div className=" flex flex-col pb-10   bg-gray-100">
+    <div className="flex flex-col pb-10 bg-gray-100">
       <div className="w-full px-10 py-4">
         <ArrowLeft />
       </div>
@@ -77,16 +93,23 @@ export default function CreateCar() {
           action=""
           className="grid grid-cols-4 gap-x-[2rem] gap-y-[2.5rem] mt-10"
         >
-          <div className="flex flex-col gap-2 col-span-2 relative">
+          <div className="flex flex-col gap-2 col-span-2">
             <label htmlFor="name" className="text-sm">
               Nome
             </label>
-            <input
-              id="name"
-              type="text"
-              className={`rounded-lg p-2 outline-gray-300 ${errors.name && 'border-red-600 border-2 outline-red-600'}`}
-              {...register('name')}
+            <Controller
+              control={control}
+              name="name"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  errorMessage={errors.name}
+                  onChange={onChange}
+                  onBlur={onBlur}
+                  value={value}
+                />
+              )}
             />
+
             {errors.name && (
               <span className="text-red-600 text-sm">
                 {errors.name.message}
@@ -94,15 +117,21 @@ export default function CreateCar() {
             )}
           </div>
 
-          <div className="flex flex-col gap-2 col-span-2 ">
-            <label htmlFor="brand" className="text-sm">
+          <div className="flex flex-col gap-2 col-span-2">
+            <label htmlFor="name" className="text-sm">
               Marca
             </label>
-            <input
-              id="brand"
-              type="text"
-              className="rounded-lg p-2 outline-gray-300"
-              {...register('brand')}
+            <Controller
+              control={control}
+              name="brand"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  errorMessage={errors.name}
+                  onChange={onChange}
+                  onBlur={onBlur}
+                  value={value}
+                />
+              )}
             />
             {errors.brand && (
               <span className="text-red-600 text-sm">
@@ -110,30 +139,61 @@ export default function CreateCar() {
               </span>
             )}
           </div>
+
           <div className="flex flex-col gap-2 col-span-1 ">
             <p className="text-sm">Categoria</p>
             <select
-              name="Selecione uma categoria"
-              id=""
-              className="bg-white w-full p-2 rounded-lg outline-gray-300"
+              className={`bg-white w-full p-2 rounded-lg outline-gray-300 ${errors.category && 'border-red-600 border-2 outline-red-600'}`}
+              {...register('category')}
             >
-              <option value="SUV">SUV</option>
-              <option value="sedan">sedan</option>
-              <option value="esportivo">esportivo</option>
+              <option>Selecione</option>
+              <option
+                selected={selectCategory === CategoriesEnum.SUV}
+                value="SUV"
+              >
+                SUV
+              </option>
+              <option
+                selected={selectCategory === CategoriesEnum.sedan}
+                value="sedan"
+              >
+                sedan
+              </option>
+              <option
+                selected={selectCategory === CategoriesEnum.espotivo}
+                value="esportivo"
+              >
+                esportivo
+              </option>
             </select>
+
+            {errors.category && (
+              <span className="text-red-600 text-sm">
+                Selecione uma categoria
+              </span>
+            )}
           </div>
 
           <div className="flex flex-col gap-2 col-span-1 ">
             <label htmlFor="daily_rate" className="text-sm">
               Diária
             </label>
-            <input
-              type="text"
-              id="daily_rate"
-              value={daily}
-              className="rounded-lg p-2 outline-gray-300"
-              {...register('daily_rate', { onChange: handleChange })}
+
+            <Controller
+              control={control}
+              name="daily_rate"
+              render={({ field: { onChange, value } }) => (
+                <Input
+                  value={value}
+                  errorMessage={errors.daily_rate}
+                  onChange={(e) => {
+                    handleChange(e)
+                    onChange(e)
+                  }}
+                />
+              )}
             />
+
             {errors.daily_rate && (
               <span className="text-red-600 text-sm">
                 {errors.daily_rate.message}
@@ -142,15 +202,22 @@ export default function CreateCar() {
           </div>
 
           <div className="flex flex-col gap-2 col-span-2 ">
-            <label htmlFor="license_plate" className="text-sm">
+            <label htmlFor="daily_rate" className="text-sm">
               Placa do carro
             </label>
-            <input
-              id="license_plate"
-              type="text"
-              className="rounded-lg p-2 outline-gray-300"
-              {...register('license_plate')}
+            <Controller
+              control={control}
+              name="license_plate"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  onBlur={onBlur}
+                  value={value}
+                  errorMessage={errors.license_plate}
+                  onChange={onChange}
+                />
+              )}
             />
+
             {errors.license_plate && (
               <span className="text-red-600 text-sm">
                 {errors.license_plate.message}
@@ -177,7 +244,7 @@ export default function CreateCar() {
         <div className="mt-10">
           <p className="">upload de imagems</p>
           <div className="flex">
-            <div className="relative flex justify-center items-center">
+            <div className="flex justify-center items-center">
               <PhotoSvg width={200} height={200} />
               <div className="p-2 bg-blue-600 rounded-full absolute">
                 <Plus width={40} height={40} color="white" />
