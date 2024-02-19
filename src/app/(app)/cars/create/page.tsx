@@ -1,5 +1,6 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { PhotoSvg } from '@/components/icons/photo'
 import { ArrowLeft, Plus } from '@phosphor-icons/react/dist/ssr'
 import { useForm, Controller } from 'react-hook-form'
@@ -38,6 +39,7 @@ type filesDropzone = {
 type CreateCarDataSchema = z.infer<typeof schema>
 
 export default function CreateCar() {
+  const router = useRouter()
   const [daily, setDaily] = useState<string>('')
   const [files, setFiles] = useState<filesDropzone[]>([])
   const containerRef = useRef<HTMLDivElement>(null)
@@ -91,6 +93,10 @@ export default function CreateCar() {
     }
   }
 
+  function handleBack() {
+    router.back()
+  }
+
   function formatToCurrency(input: string) {
     // Remove qualquer caractere que não seja um dígito numérico
     let formatedValue = input.replace(/\D/g, '')
@@ -138,7 +144,11 @@ export default function CreateCar() {
   console.log(files)
   return (
     <div className="flex flex-col pb-10 bg-gray-100">
-      <div className="w-full px-10 py-4">
+      <div
+        className="w-full px-10 py-4 cursor-pointer"
+        onClick={handleBack}
+        title="voltar"
+      >
         <ArrowLeft />
       </div>
       <div className="px-[5rem] mt-10 md:px-[10rem] xl:px-[20rem] max-sm:px-[1rem]">
