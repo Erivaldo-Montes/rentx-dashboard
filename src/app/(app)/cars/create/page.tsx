@@ -323,7 +323,7 @@ export default function CreateCar() {
             {files.map((file) => {
               return (
                 <div
-                  className="flex justify-center items-center  w-[200px] h-[200px]"
+                  className="flex justify-center items-center  w-[200px] h-[200px] relative"
                   key={file.id}
                 >
                   <Image
@@ -332,7 +332,7 @@ export default function CreateCar() {
                     width={200}
                     alt="car image"
                     draggable={false}
-                    className="object-contain min-h-[200px] min-w-[200px]"
+                    className="min-h-[200px] min-w-[200px] object-cover"
                   />
                   <div
                     className="absolute bottom-1 right-1 bg-red-600 p-3 rounded-lg"
