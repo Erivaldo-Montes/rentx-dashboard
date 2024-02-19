@@ -9,3 +9,10 @@ body, html {
 
 }
 
+.list-images::-webkit-scrollbar {
+  width: 0 !important
+}
+
+.list-images {
+  overflow: -moz-srollbars-none;
+}
