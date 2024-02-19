@@ -163,7 +163,7 @@ export default function CreateCar() {
       </div>
       <div className="px-[5rem] mt-10 md:px-[10rem] xl:px-[20rem] max-sm:px-[1rem]">
         <div className="w-full flex justify-start">
-          <p>Criar novo carro</p>
+          <p className="text-lg font-medium">Criar novo carro</p>
         </div>
         <form
           action=""
