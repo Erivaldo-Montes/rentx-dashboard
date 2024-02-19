@@ -41,8 +41,10 @@ type CreateCarDataSchema = z.infer<typeof schema>
 export default function CreateCar() {
   const router = useRouter()
   const [daily, setDaily] = useState<string>('')
-  const [files, setFiles] = useState<filesDropzone[]>([])
+  const [isHorinzontalSrolling, setIsHorizontalScrolling] = useState(false)
+  const [files, setFiles] = useState<any[]>([])
   const containerRef = useRef<HTMLDivElement>(null)
+
   const { getRootProps } = useDropzone({
     accept: {
       'image/*': [],
@@ -122,20 +124,28 @@ export default function CreateCar() {
     console.log(container)
     const handleWheel = (event: WheelEvent) => {
       if (container) {
+        if (!isHorinzontalSrolling) {
         container.scrollLeft += event.deltaY
         event.preventDefault()
         console.log(container.scrollLeft)
       }
     }
-
+    }
+    const handleScroll = () => {
+      if (container) {
+        setIsHorizontalScrolling(container.scrollLeft !== 0)
+      }
+    }
     if (container) {
       container.addEventListener('wheel', handleWheel)
+      container.addEventListener('scroll', handleScroll)
 
       return () => {
         container.removeEventListener('wheel', handleWheel)
+        container.removeEventListener('scroll', handleScroll)
       }
     }
-  }, [])
+  }, [isHorinzontalSrolling])
 
   useEffect(() => {
     setValue('daily_rate', daily)
