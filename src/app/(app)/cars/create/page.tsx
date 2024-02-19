@@ -1,11 +1,15 @@
 'use client'
+
 import { PhotoSvg } from '@/components/icons/photo'
 import { ArrowLeft, Plus } from '@phosphor-icons/react/dist/ssr'
 import { useForm, Controller } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useState, ChangeEvent, useEffect } from 'react'
+import { useState, ChangeEvent, useEffect, useRef } from 'react'
 import { Input } from '@/components/input'
+import { useDropzone } from 'react-dropzone'
+import Image from 'next/image'
+import { v4 as uuidV4 } from 'uuid'
 
 enum CategoriesEnum {
   SUV = 'SUV',
@@ -18,14 +22,44 @@ const schema = z.object({
   brand: z.string().min(1, 'Marca é obrigatório'),
   daily_rate: z.string().min(1, 'Diária é obrigatória'),
   license_plate: z.string().min(1, 'Placa é obrigatório'),
-  about: z.string().min(1),
+  about: z.string(),
   category: z.nativeEnum(CategoriesEnum),
 })
+
+type filesDropzone = {
+  id: string
+  path?: string
+  preview: string
+  name?: string
+  size?: number
+  type?: string
+}
 
 type CreateCarDataSchema = z.infer<typeof schema>
 
 export default function CreateCar() {
   const [daily, setDaily] = useState<string>('')
+  const [files, setFiles] = useState<filesDropzone[]>([])
+  const containerRef = useRef<HTMLDivElement>(null)
+  const { getRootProps } = useDropzone({
+    accept: {
+      'image/*': [],
+    },
+    onDrop: (acceptedFiles) => {
+      setFiles((state) => {
+        const files = acceptedFiles.map((file) =>
+          Object.assign(file, {
+            id: uuidV4(),
+            preview: URL.createObjectURL(file),
+          }),
+        )
+
+        const concatArrays = files.concat(state)
+
+        return concatArrays
+      })
+    },
+  })
 
   const {
     register,
@@ -77,21 +111,43 @@ export default function CreateCar() {
   }
 
   useEffect(() => {
+    const container = containerRef.current
+
+    console.log(container)
+    const handleWheel = (event: WheelEvent) => {
+      if (container) {
+        container.scrollLeft += event.deltaY
+        event.preventDefault()
+        console.log(container.scrollLeft)
+      }
+    }
+
+    if (container) {
+      container.addEventListener('wheel', handleWheel)
+
+      return () => {
+        container.removeEventListener('wheel', handleWheel)
+      }
+    }
+  }, [])
+
+  useEffect(() => {
     setValue('daily_rate', daily)
   }, [daily, setValue])
 
+  console.log(files)
   return (
     <div className="flex flex-col pb-10 bg-gray-100">
       <div className="w-full px-10 py-4">
         <ArrowLeft />
       </div>
-      <div className="px-[20rem] mt-10 ">
+      <div className="px-[5rem] mt-10 md:px-[10rem] xl:px-[20rem] max-sm:px-[1rem]">
         <div className="w-full flex justify-start">
           <p>Criar novo carro</p>
         </div>
         <form
           action=""
-          className="grid grid-cols-4 gap-x-[2rem] gap-y-[2.5rem] mt-10"
+          className="grid grid-cols-4 gap-x-[2rem] gap-y-[2.5rem] mt-10 max-sm:flex max-sm:flex-col "
         >
           <div className="flex flex-col gap-2 col-span-2">
             <label htmlFor="name" className="text-sm">
@@ -143,28 +199,14 @@ export default function CreateCar() {
           <div className="flex flex-col gap-2 col-span-1 ">
             <p className="text-sm">Categoria</p>
             <select
+              defaultValue={''}
               className={`bg-white w-full p-2 rounded-lg outline-gray-300 ${errors.category && 'border-red-600 border-2 outline-red-600'}`}
               {...register('category')}
             >
-              <option>Selecione</option>
-              <option
-                selected={selectCategory === CategoriesEnum.SUV}
-                value="SUV"
-              >
-                SUV
-              </option>
-              <option
-                selected={selectCategory === CategoriesEnum.sedan}
-                value="sedan"
-              >
-                sedan
-              </option>
-              <option
-                selected={selectCategory === CategoriesEnum.espotivo}
-                value="esportivo"
-              >
-                esportivo
-              </option>
+              <option value={'selecione'}>Selecione</option>
+              <option value="SUV">SUV</option>
+              <option value="sedan">sedan</option>
+              <option value="esportivo">esportivo</option>
             </select>
 
             {errors.category && (
@@ -243,13 +285,37 @@ export default function CreateCar() {
 
         <div className="mt-10">
           <p className="">upload de imagems</p>
-          <div className="flex">
-            <div className="flex justify-center items-center">
+          <div
+            className="list-images flex  w-full gap-5 mt-10 overflow-x-auto"
+            ref={containerRef}
+          >
+            <div
+              className="flex justify-center items-center relative"
+              title="Adicionar foto"
+              {...getRootProps()}
+            >
               <PhotoSvg width={200} height={200} />
               <div className="p-2 bg-blue-600 rounded-full absolute">
                 <Plus width={40} height={40} color="white" />
               </div>
             </div>
+            {files.map((file) => {
+              return (
+                <div
+                  className="flex justify-center items-center  w-[200px] h-[200px]"
+                  key={file.id}
+                >
+                  <Image
+                    src={file.preview}
+                    height={200}
+                    width={200}
+                    alt="car image"
+                    draggable={false}
+                    className="object-contain min-h-[200px] min-w-[200px]"
+                  />
+                </div>
+              )
+            })}
           </div>
         </div>
 
