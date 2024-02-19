@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { PhotoSvg } from '@/components/icons/photo'
-import { ArrowLeft, Plus } from '@phosphor-icons/react/dist/ssr'
+import { ArrowLeft, Plus, Trash } from '@phosphor-icons/react/dist/ssr'
 import { useForm, Controller } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -323,6 +323,12 @@ export default function CreateCar() {
                     draggable={false}
                     className="object-contain min-h-[200px] min-w-[200px]"
                   />
+                  <div
+                    className="absolute bottom-1 right-1 bg-red-600 p-3 rounded-lg"
+                    title="remover imagem"
+                  >
+                    <Trash width={20} height={20} color="white" />
+                  </div>
                 </div>
               )
             })}
