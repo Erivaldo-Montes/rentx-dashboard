@@ -308,6 +308,7 @@ export default function CreateCar() {
           <div
             className="list-images flex  w-full gap-5 mt-10 overflow-x-auto"
             ref={containerRef}
+            onWheel={(e) => e.preventDefault()}
           >
             <div
               className="flex justify-center items-center relative"
