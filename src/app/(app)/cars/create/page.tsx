@@ -27,21 +27,11 @@ const schema = z.object({
   category: z.nativeEnum(CategoriesEnum),
 })
 
-type filesDropzone = {
-  id: string
-  path?: string
-  preview: string
-  name?: string
-  size?: number
-  type?: string
-}
-
 type CreateCarDataSchema = z.infer<typeof schema>
 
 export default function CreateCar() {
   const router = useRouter()
   const [daily, setDaily] = useState<string>('')
-  const [isHorinzontalSrolling, setIsHorizontalScrolling] = useState(false)
   const [files, setFiles] = useState<any[]>([])
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -68,7 +58,6 @@ export default function CreateCar() {
   const {
     register,
     handleSubmit,
-    watch,
     control,
     setValue,
     formState: { errors },
@@ -82,7 +71,6 @@ export default function CreateCar() {
       name: '',
     },
   })
-  const selectCategory = watch('category')
 
   function handleCreateCar(data: CreateCarDataSchema) {
     const value = data.daily_rate.match(/\d+/g)
@@ -118,34 +106,34 @@ export default function CreateCar() {
     setDaily(formatedValue)
   }
 
+  function handleRemoveImages(id: string) {
+    const NewArrayFiles = files.filter((item) => item.id !== id)
+    setFiles(NewArrayFiles)
+    console.log(NewArrayFiles)
+  }
+
   useEffect(() => {
+    if (files.length < 3) {
+      return
+    }
     const container = containerRef.current
 
-    console.log(container)
     const handleWheel = (event: WheelEvent) => {
       if (container) {
-        if (!isHorinzontalSrolling) {
         container.scrollLeft += event.deltaY
         event.preventDefault()
         console.log(container.scrollLeft)
       }
     }
-    }
-    const handleScroll = () => {
-      if (container) {
-        setIsHorizontalScrolling(container.scrollLeft !== 0)
-      }
-    }
+
     if (container) {
       container.addEventListener('wheel', handleWheel)
-      container.addEventListener('scroll', handleScroll)
 
       return () => {
         container.removeEventListener('wheel', handleWheel)
-        container.removeEventListener('scroll', handleScroll)
       }
     }
-  }, [isHorinzontalSrolling])
+  }, [files])
 
   useEffect(() => {
     setValue('daily_rate', daily)
@@ -153,7 +141,7 @@ export default function CreateCar() {
 
   console.log(files)
   return (
-    <div className="flex flex-col pb-10 bg-gray-100">
+    <div className="flex flex-col h-full bg-gray-100">
       <div
         className="w-full px-10 py-4 cursor-pointer"
         onClick={handleBack}
@@ -161,7 +149,7 @@ export default function CreateCar() {
       >
         <ArrowLeft />
       </div>
-      <div className="px-[5rem] mt-10 md:px-[10rem] xl:px-[20rem] max-sm:px-[1rem]">
+      <div className="px-[5rem] mt-10 md:px-[10rem] xl:px-[20rem] max-sm:px-[1rem] bg-gray-100">
         <div className="w-full flex justify-start">
           <p className="text-lg font-medium">Criar novo carro</p>
         </div>
@@ -308,7 +296,6 @@ export default function CreateCar() {
           <div
             className="list-images flex  w-full gap-5 mt-10 overflow-x-auto"
             ref={containerRef}
-            onWheel={(e) => e.preventDefault()}
           >
             <div
               className="flex justify-center items-center relative"
@@ -336,6 +323,7 @@ export default function CreateCar() {
                   />
                   <div
                     className="absolute bottom-1 right-1 bg-red-600 p-3 rounded-lg"
+                    onClick={() => handleRemoveImages(file.id)}
                     title="remover imagem"
                   >
                     <Trash width={20} height={20} color="white" />
@@ -348,7 +336,7 @@ export default function CreateCar() {
 
         <div className="w-full flex justify-center mt-10">
           <button
-            className="rounded-lg bg-green-600 px-10 py-2 text-white"
+            className="rounded-lg bg-green-600 px-10 py-2 text-white mb-10"
             onClick={handleSubmit(handleCreateCar)}
           >
             Criar
