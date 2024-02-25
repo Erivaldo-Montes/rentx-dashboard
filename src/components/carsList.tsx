@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { CaretLeft, CaretRight } from '@phosphor-icons/react'
 import { Loading } from './loading'
-import { toast, ToastContainer, Bounce } from 'react-toastify'
+import { toast } from 'react-toastify'
 
 interface CarsProps {
   id: string
@@ -27,17 +27,15 @@ export function CarList() {
   }
 
   useEffect(() => {
-    fetch(`http://localhost:3000/api/list-car?page=${currentPage}`, {
+    setIsFetching(true)
+
+    fetch(`api/list-car?page=${currentPage}`, {
       method: 'GET',
     })
       .then((response) => response.json().then((data) => setCars(data.cars)))
-      .catch(() =>
-        toast.error('server error', {
-          position: 'top-right',
-        }),
-      )
+      .catch(() => toast.error('server error'))
 
-    fetch(`http://localhost:3000/api/list-car?page=${currentPage + 1}`, {
+    fetch(`api/list-car?page=${currentPage + 1}`, {
       method: 'GET',
     }).then((response) =>
       response.json().then((data) => setNextPageCars(data.cars)),
@@ -62,7 +60,9 @@ export function CarList() {
               >
                 <div className="text-center p-2 w-40">{cars.name}</div>
                 <div className="text-center p-2 w-40">{cars.brand}</div>
-                <div className="text-center p-2 w-40">R$ {cars.daily_rate}</div>
+                <div className="text-center p-2 w-40">
+                  R$ {cars.daily_rate / 100}
+                </div>
                 <div className="text-center p-2 w-40">{cars.license_plate}</div>
                 <div className="text-center p-2 w-40">sim</div>
               </div>
