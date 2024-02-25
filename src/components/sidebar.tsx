@@ -12,9 +12,12 @@ export function Sidebar() {
 
   return (
     <div className="bg-main h-full fixed flex flex-col  z-10  px-4 gap-5 items-center justify-center py-[200px]">
-      <Link href="/cars" className="flex flex-col items-center justify-center ">
+      <Link
+        href="/dashboard/cars"
+        className="flex flex-col items-center justify-center "
+      >
         <CarSvg
-          fill={pathname === '/cars' ? '#E11D48' : '#ffffff'}
+          fill={pathname === '/dashboard/cars' ? '#E11D48' : '#ffffff'}
           height={50}
           width={40}
         />
@@ -22,11 +25,11 @@ export function Sidebar() {
       </Link>
 
       <Link
-        href={'/users'}
+        href={'/dashboard/users'}
         className="flex flex-col items-center justify-center"
       >
         <UserSvg
-          fill={pathname === '/users' ? '#E11D48' : '#ffffff'}
+          fill={pathname === '/dashboard/users' ? '#E11D48' : '#ffffff'}
           height={50}
           width={40}
         />
@@ -34,11 +37,11 @@ export function Sidebar() {
       </Link>
 
       <Link
-        href={'/statistics'}
+        href={'/dashboard/statistics'}
         className="flex flex-col items-center justify-center "
       >
         <StatisticSvg
-          fill={pathname === '/statistics' ? '#E11D48' : '#ffffff'}
+          fill={pathname === '/dashboard/statistics' ? '#E11D48' : '#ffffff'}
           height={50}
           width={40}
         />
@@ -46,11 +49,11 @@ export function Sidebar() {
       </Link>
 
       <Link
-        href={'/settings'}
+        href={'/dashboard/settings'}
         className="flex flex-col items-center justify-center "
       >
         <EngineSvg
-          fill={pathname === '/settings' ? '#E11D48' : '#ffffff'}
+          fill={pathname === '/dashboard/settings' ? '#E11D48' : '#ffffff'}
           height={50}
           width={40}
         />
