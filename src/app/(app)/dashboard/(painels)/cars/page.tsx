@@ -2,11 +2,8 @@ import { Header } from '@/components/header'
 import { Plus, MagnifyingGlass } from '@phosphor-icons/react/dist/ssr'
 import { CarList } from '@/components/carsList'
 import Link from 'next/link'
-import { auth } from '@/lib/auth'
 
 export default async function Cars() {
-  const session = await auth()
-  console.log(session)
   return (
     <div>
       <Header />
