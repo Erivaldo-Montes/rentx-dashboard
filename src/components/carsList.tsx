@@ -26,29 +26,44 @@ export function CarList() {
     setCurrentPage((state) => state - 1)
   }
 
+  async function getCars() {
+    try {
+      setIsFetching(true)
+      const carsList = await fetch(`/api/car/list?page=${currentPage}`, {
+        method: 'GET',
+      })
+
+      const carsListJson = await carsList.json()
+      setCars(carsListJson.cars)
+
+      const carsListNextPage = await fetch(
+        `/api/car/list?page=${currentPage + 1}`,
+        {
+          method: 'GET',
+        },
+      )
+
+      const carsListNextPageJson = await carsListNextPage.json()
+
+      setNextPageCars(carsListNextPageJson.cars)
+    } catch (error) {
+      toast.error('server error')
+    } finally {
+      setIsFetching(false)
+    }
+
+    console.log(isFetching)
+  }
+
   useEffect(() => {
-    setIsFetching(true)
-
-    fetch(`api/list-car?page=${currentPage}`, {
-      method: 'GET',
-    })
-      .then((response) => response.json().then((data) => setCars(data.cars)))
-      .catch(() => toast.error('server error'))
-
-    fetch(`api/list-car?page=${currentPage + 1}`, {
-      method: 'GET',
-    }).then((response) =>
-      response.json().then((data) => setNextPageCars(data.cars)),
-    )
-
-    setIsFetching(false)
-  }, [currentPage])
+    getCars()
+  }, [])
 
   return (
     <>
       {isFetching ? (
         <div className="bg-white h-[30rem] flex justify-center items-center">
-          <Loading />
+          <Loading color="white" />
         </div>
       ) : (
         <div className="overflow-auto  h-[30rem] bg-white">
