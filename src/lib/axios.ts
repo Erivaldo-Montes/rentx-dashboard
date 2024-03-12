@@ -74,6 +74,11 @@ api.interceptors.response.use(
       redirect('/login')
     }
 
+    await signOut()
+    cookies().delete(AUTH_REFRESH_COOKIE)
+    cookies().delete(AUTH_TOKEN_COOKIE)
+    redirect('/login')
+
     return Promise.reject(error.code)
   },
 )
