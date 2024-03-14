@@ -1,18 +1,20 @@
 import Image from 'next/image'
+import { auth } from '@/lib/auth'
+export async function Header() {
+  const user = await auth()
 
-export function Header() {
   return (
     <div className="bg-gray-100 w-full py-6 drop-shadow-lg">
       <div className=" flex flex-row ml-[320px]">
         <Image
-          src="https://media.istockphoto.com/id/1322220448/photo/abstract-digital-futuristic-eye.jpg?s=612x612&w=0&k=20&c=oAMmGJxyTTNW0XcttULhkp5IxfW9ZTaoVdVwI2KwK5s="
+          src="https://images.unsplash.com/photo-1547425260-76bcadfb4f2c?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
           alt="user image"
           width={40}
           height={40}
-          className="w-16 h-16 rounded-full"
+          className="w-16 h-16 rounded-full object-cover"
         />
         <div className="ml-5">
-          <p className="text-main">Erivaldo montes</p>
+          <p className="text-main">{user?.user?.name}</p>
           <p className="text-subtitle">Admin</p>
         </div>
       </div>
