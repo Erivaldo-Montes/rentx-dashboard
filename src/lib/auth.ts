@@ -1,9 +1,6 @@
 import NextAuth from 'next-auth'
-import { authConfig } from '../auth.config'
 import Credencial from 'next-auth/providers/credentials'
-import { api } from './axios'
-import { cookies } from 'next/headers'
-import { AUTH_REFRESH_COOKIE, AUTH_TOKEN_COOKIE } from '@/cookies/cookie-config'
+import axios from './axios'
 import { z } from 'zod'
 
 export const {
@@ -12,9 +9,10 @@ export const {
   signOut,
   handlers: { GET, POST },
 } = NextAuth({
-  ...authConfig,
+  pages: { signIn: '/login' },
   session: {
     strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   providers: [
     Credencial({
@@ -30,22 +28,26 @@ export const {
           const { email, password } = credentials
 
           try {
-            const response = await api.post('/session', { email, password })
+            const response = await axios.post('/session', { email, password })
             if (response.status === 200) {
               // eslint-disable-next-line camelcase
               const { token, refresh_token } = response.data
 
-              cookies().set(AUTH_TOKEN_COOKIE, token)
-              cookies().set(AUTH_REFRESH_COOKIE, refresh_token)
-
-              const user = await api('/me', {
+              const responseProfile = await axios('/me', {
                 headers: { Authorization: `Bearer ${response.data.token}` },
               })
+              console.log(responseProfile)
 
-              if (user.data) {
-                return user.data
+              if (responseProfile.data) {
+                const user = {
+                  ...responseProfile.data,
+                  accessToken: token,
+                  // eslint-disable-next-line camelcase
+                  refreshToken: refresh_token,
+                }
+                return user
               }
-              return null
+              return 'null'
             }
           } catch (error) {
             return null
@@ -55,4 +57,24 @@ export const {
       },
     }),
   ],
+  callbacks: {
+    authorized({ auth, request: { nextUrl } }) {
+      const isLoggedIn = !!auth?.user
+      const isOnDashboard = nextUrl.pathname.startsWith('/dashboard')
+      if (isOnDashboard) {
+        if (isLoggedIn) return true
+        return false // Redirect unauthenticated users to login page
+      } else if (isLoggedIn) {
+        return Response.redirect(new URL('/dashboard', nextUrl))
+      }
+      return true
+    },
+    async jwt({ token, user }) {
+      return { ...token, ...user }
+    },
+    async session({ session, token, user }) {
+      session.user = token as any
+      return session
+    },
+  },
 })

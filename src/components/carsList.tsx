@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import { CaretLeft, CaretRight } from '@phosphor-icons/react'
 import { Loading } from './loading'
 import { toast } from 'react-toastify'
-
+import { axiosAuth } from '@/lib/axios'
 interface CarsProps {
   id: string
   name: string
@@ -29,30 +29,20 @@ export function CarList() {
   async function getCars() {
     try {
       setIsFetching(true)
-      const carsList = await fetch(`/api/car/list?page=${currentPage}`, {
-        method: 'GET',
-      })
+      const carsList = await axiosAuth.get(`/car/list?page=${currentPage}`)
 
-      const carsListJson = await carsList.json()
-      setCars(carsListJson.cars)
+      setCars(carsList.data.cars)
 
-      const carsListNextPage = await fetch(
-        `/api/car/list?page=${currentPage + 1}`,
-        {
-          method: 'GET',
-        },
+      const carsListNextPage = await axiosAuth.get(
+        `/car/list?page=${currentPage + 1}`,
       )
 
-      const carsListNextPageJson = await carsListNextPage.json()
-
-      setNextPageCars(carsListNextPageJson.cars)
+      setNextPageCars(carsListNextPage.data.cars)
     } catch (error) {
       toast.error('server error')
     } finally {
       setIsFetching(false)
     }
-
-    console.log(isFetching)
   }
 
   useEffect(() => {
@@ -63,7 +53,7 @@ export function CarList() {
     <>
       {isFetching ? (
         <div className="bg-white h-[30rem] flex justify-center items-center">
-          <Loading color="white" />
+          <Loading color="#777777" />
         </div>
       ) : (
         <div className="overflow-auto  h-[30rem] bg-white">

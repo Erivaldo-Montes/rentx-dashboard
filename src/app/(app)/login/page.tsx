@@ -1,19 +1,65 @@
 'use client'
 
-import { authenticate } from '@/app/lib/action'
-import { useFormState, useFormStatus } from 'react-dom'
 import { Inter } from 'next/font/google'
-import { Eye, EyeSlash } from '@phosphor-icons/react'
+import { Eye, EyeSlash, Warning } from '@phosphor-icons/react'
 import { useEffect, useState } from 'react'
 import loginImage from '@/assets/login_ilustration.png'
 import Image from 'next/image'
 import { Loading } from '@/components/loading'
 import { toast } from 'react-toastify'
+import { useForm, Controller } from 'react-hook-form'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { signIn } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+
+const LoginSchema = z.object({
+  email: z.string().email('Obrigatório').min(1, 'Obrigatório'),
+  password: z.string().min(6, 'Deve ter pelo menos 6 dígitos'),
+})
+
+type LoginSchemaFormData = z.infer<typeof LoginSchema>
 
 const inter = Inter({ subsets: ['latin'] })
 
 export default function LoginPage() {
-  const [errorMessage, dispatch] = useFormState(authenticate, undefined)
+  const [errorMessage, setErrorMessage] = useState<string | undefined>(
+    undefined,
+  )
+
+  const navigation = useRouter()
+
+  const {
+    register,
+    control,
+    handleSubmit,
+    formState: { isSubmitting, errors },
+  } = useForm<LoginSchemaFormData>({
+    resolver: zodResolver(LoginSchema),
+    defaultValues: { password: '' },
+  })
+
+  async function onSubmit(data: LoginSchemaFormData) {
+    setErrorMessage(undefined)
+
+    const result = await signIn('credentials', {
+      redirect: false,
+      email: data.email,
+      password: data.password,
+    })
+
+    if (result?.error) {
+      console.log(result.status)
+      switch (result.error) {
+        case 'CredentialsSignin':
+          return toast.error('Email ou senha estão errados')
+        default:
+          return toast.error('Algo deu errado, tente mais')
+      }
+    }
+
+    navigation.replace('/dashboard/cars')
+  }
 
   useEffect(() => {
     toast.error(errorMessage)
@@ -21,16 +67,16 @@ export default function LoginPage() {
 
   return (
     <div className="flex flex-1 h-screen">
-      <div className={`flex-1`}>
+      <div className={`flex-1 max-md:hidden`}>
         <Image
           src={loginImage}
-          alt="iamge"
+          alt="image"
           style={{ objectFit: 'cover', height: '100%' }}
         />
       </div>
       <form
-        action={dispatch}
-        className="flex flex-col w-[60%] items-center  overflow-auto"
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex flex-col  items-center  overflow-auto  max-sm:px-[5rem] sm:w-full sm:px-[5rem] md:px-[10rem] md:w-[60%]"
       >
         <h1
           className={
@@ -39,45 +85,82 @@ export default function LoginPage() {
         >
           Bem-vindos
         </h1>
-        <p className="text-gray-400 text-center mt-[3rem]">
+        <p className="text-gray-400 text-center w-full mt-[3rem]">
           Faça login para gerenciar seus carros de maneira fácil
         </p>
 
-        <div className="flex flex-col mt-[5.625rem] w-[23rem]">
-          <label htmlFor="email">Email</label>
-          <input
-            id="email"
-            name="email"
-            type="text"
-            className="bg-gray-200 h-10 mt-5 rounded-lg p-4 outline-none"
+        <div className="max-w-[23rem] w-full">
+          <div className="flex flex-col mt-[5.625rem] w-full">
+            <label htmlFor="email">Email</label>
+            <input
+              id="email"
+              type="text"
+              className={`bg-gray-200 h-10 mt-5 rounded-lg p-4 outline-none ${errorMessage === 'CredencialSign' || errors.email ? 'border-[1px] border-red-600' : null}`}
+              {...register('email')}
+            />
+
+            {errors.email && (
+              <span className="flex flex-row gap-2 w-full items-center mt-2">
+                <Warning size={20} color="#E11D48" weight="fill" />
+                {errors.email.message}
+              </span>
+            )}
+          </div>
+
+          <div className="flex flex-col mt-[2rem] w-full">
+            <label htmlFor="password">Senha</label>
+
+            <Controller
+              control={control}
+              name="password"
+              render={({ field: { onChange, value } }) => (
+                <PasswordInput
+                  errorMessage={errorMessage || errors.password?.message}
+                  onChange={onChange}
+                  value={value}
+                />
+              )}
+            />
+
+            {errors.password && (
+              <span className="flex flex-row gap-2 w-full items-center mt-2">
+                <Warning size={20} color="#E11D48" weight="fill" />
+                {errors.password.message}
+              </span>
+            )}
+          </div>
+          <LoginButton
+            isSubmitting={isSubmitting}
+            onClick={handleSubmit(onSubmit)}
           />
         </div>
-
-        <div className="flex flex-col mt-[2rem] w-[23rem]">
-          <label htmlFor="password">Senha</label>
-          <PasswordInput />
-        </div>
-
-        <LoginButton />
       </form>
     </div>
   )
 }
 
-function LoginButton() {
-  const { pending } = useFormStatus()
+interface LoginButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  isSubmitting: boolean
+}
 
+function LoginButton({ isSubmitting, ...rest }: LoginButtonProps) {
   return (
     <button
       type={'submit'}
-      className="mt-10 bg-green-600 p-2 flex items-center justify-center text-white rounded-lg w-[23rem]"
+      className="mt-10 bg-green-600 p-2 flex items-center justify-center text-white rounded-lg w-full "
+      {...rest}
     >
-      {pending ? <Loading color="white" /> : 'Log in'}
+      {isSubmitting ? <Loading color="white" /> : 'Log in'}
     </button>
   )
 }
 
-function PasswordInput() {
+interface PasswordInputProps
+  extends React.InputHTMLAttributes<HTMLInputElement> {
+  errorMessage: string | undefined
+}
+function PasswordInput({ errorMessage, ...rest }: PasswordInputProps) {
   const [isHidenPassword, setIsHidenPassword] = useState(true)
 
   function handlehidePassword() {
@@ -85,12 +168,15 @@ function PasswordInput() {
   }
 
   return (
-    <div className="flex flex-row justify-between px-4 items-center w-full rounded-lg bg-gray-200 h-10 mt-5">
+    <div
+      className={`flex flex-row justify-between px-4 items-center w-full rounded-lg bg-gray-200 h-10 mt-5 ${errorMessage === 'Invalid credentials.' || errorMessage ? 'border-[1px] border-red-600' : null}`}
+    >
       <input
         type={isHidenPassword ? 'password' : 'text'}
         name="password"
         id="password"
         className="bg-gray-200 outline-none w-full mr-2"
+        {...rest}
       />
       {isHidenPassword ? (
         <EyeSlash

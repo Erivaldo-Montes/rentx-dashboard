@@ -1,6 +1,4 @@
-import { InputHTMLAttributes } from 'react'
-
-interface Props extends InputHTMLAttributes<HTMLInputElement> {
+interface Props extends React.InputHTMLAttributes<HTMLInputElement> {
   errorMessage: any
 }
 

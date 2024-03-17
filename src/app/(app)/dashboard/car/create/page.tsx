@@ -12,6 +12,9 @@ import { useDropzone } from 'react-dropzone'
 import Image from 'next/image'
 import { v4 as uuidV4 } from 'uuid'
 import { Loading } from '@/components/loading'
+import { AppError } from '@/utils/appError'
+import { toast } from 'react-toastify'
+import { axiosAuth } from '@/lib/axios'
 
 enum CategoriesEnum {
   SUV = 'SUV',
@@ -26,24 +29,26 @@ type Category = {
   create_at: string
 }
 
-const schema = z.object({
+const carSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
   brand: z.string().min(1, 'Marca é obrigatório'),
   daily_rate: z.string().min(1, 'Diária é obrigatória'),
   license_plate: z.string().min(1, 'Placa é obrigatório'),
   about: z.string(),
+  speed: z.coerce.number().gt(1, 'Velecidade é obrigatório'),
+  people: z.string().min(1, 'Números de pessoas é obrigatório'),
+  gearbox: z.enum(['manual', 'auto']),
+  aceleration: z.coerce.number().min(1, 'Aceleração é obrigatório'),
+  power: z.string().min(1, 'Força é obrigatório'),
+  fuel: z.enum(['gasoline', 'disel', 'eletric']),
+  category: z.string().min(1, 'Obrigatório'),
 })
 
-type CreateCarDataSchema = z.infer<typeof schema>
+type CreateCarDataSchema = z.infer<typeof carSchema>
 
 export default function CreateCar() {
-  const [daily, setDaily] = useState<string>('')
   const [files, setFiles] = useState<any[]>([])
   const containerRef = useRef<HTMLDivElement>(null)
-  const [isPending, setIsPending] = useState(false)
-  const [categories, setCategories] = useState<Category[]>([])
-  const [selectedCategory, setSelectedCategory] = useState<Category>()
-  const [categoryError, setCategoryError] = useState(false)
 
   const router = useRouter()
   const { getRootProps } = useDropzone({
@@ -70,101 +75,47 @@ export default function CreateCar() {
     register,
     handleSubmit,
     control,
-    setValue,
-    formState: { errors },
+    formState: { isSubmitting, errors },
   } = useForm<CreateCarDataSchema>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(carSchema),
     defaultValues: {
       about: '',
       brand: '',
       license_plate: '',
       daily_rate: '',
       name: '',
+      aceleration: 0,
+      people: '',
+      power: '',
+      speed: 0,
     },
   })
 
   async function handleCreateCar(data: CreateCarDataSchema) {
-    setIsPending(true)
     const value = data.daily_rate.match(/\d+/g)
-
-    console.log(selectedCategory)
-
-    // validate category
-    if (!selectedCategory) {
-      setCategoryError(true)
-      setIsPending(false)
-      return
-    } else {
-      setCategoryError(false)
-    }
 
     if (value) {
       const valueString = value.join('')
       data.daily_rate = valueString
-
-      await fetch('/api/car/create', {
-        method: 'post',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: data.name,
-          brand: data.brand,
-          daily_rate: Number(valueString),
-          license_plate: data.license_plate,
-          category_id: selectedCategory?.id,
-        }),
-      })
+      try {
+        await axiosAuth.post('/api/car/create', data)
+        console.log('-asdasdasd')
+      } catch (error) {
+        console.log('response---')
+        const isAppError = error instanceof AppError
+        const title = isAppError ? error.message : 'Não foi possivel criar'
+        toast.error(title)
+      }
     }
-
-    setIsPending(false)
   }
 
   function handleBack() {
     router.back()
   }
 
-  function handleSelectedChange(event: ChangeEvent) {
-    const value = event.target.value
-    const categoryChange = categories.find((item) => item.name === value)
-    console.log(categoryChange)
-    setSelectedCategory(categoryChange)
-  }
-
-  function formatToCurrency(input: string) {
-    // Remove qualquer caractere que não seja um dígito numérico
-    let formatedValue = input.replace(/\D/g, '')
-
-    // Formata o número para o formato monetário (com duas casas decimais e separador de milhares)
-    formatedValue = (Number(formatedValue) / 100).toLocaleString('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    })
-
-    return formatedValue
-  }
-
-  function handleChange(event: ChangeEvent<HTMLInputElement>) {
-    const { value } = event.target
-    const formatedValue = formatToCurrency(value)
-    setDaily(formatedValue)
-  }
-
   function handleRemoveImages(id: string) {
     const NewArrayFiles = files.filter((item) => item.id !== id)
     setFiles(NewArrayFiles)
-  }
-
-  async function getCategories() {
-    try {
-      const response = await fetch(`/api/car/categories`, { method: 'GET' })
-
-      const data = await response.json()
-
-      setCategories(data.categories)
-    } catch (error) {
-      console.log(error)
-    }
   }
 
   useEffect(() => {
@@ -190,14 +141,6 @@ export default function CreateCar() {
     }
   }, [files])
 
-  useEffect(() => {
-    setValue('daily_rate', daily)
-  }, [daily, setValue])
-
-  useEffect(() => {
-    getCategories()
-  }, [])
-
   return (
     <div className="flex flex-col h-full bg-gray-100">
       <div
@@ -222,11 +165,10 @@ export default function CreateCar() {
             <Controller
               control={control}
               name="name"
-              render={({ field: { onChange, onBlur, value } }) => (
+              render={({ field: { onChange, value } }) => (
                 <Input
                   errorMessage={errors.name}
                   onChange={onChange}
-                  onBlur={onBlur}
                   value={value}
                 />
               )}
@@ -243,18 +185,20 @@ export default function CreateCar() {
             <label htmlFor="name" className="text-sm">
               Marca
             </label>
+
             <Controller
               control={control}
               name="brand"
               render={({ field: { onChange, onBlur, value } }) => (
                 <Input
-                  errorMessage={errors.name}
+                  errorMessage={errors.brand}
                   onChange={onChange}
                   onBlur={onBlur}
                   value={value}
                 />
               )}
             />
+
             {errors.brand && (
               <span className="text-red-600 text-sm">
                 {errors.brand.message}
@@ -264,22 +208,20 @@ export default function CreateCar() {
 
           <div className="flex flex-col gap-2 col-span-1 ">
             <p className="text-sm">Categoria</p>
-            <select
-              onChange={handleSelectedChange}
-              defaultValue={''}
-              className={`bg-white w-full p-2 rounded-lg outline-gray-300 ${categoryError && 'border-red-600 border-2 outline-red-600'}`}
-            >
-              <option value={'selecione'}>Selecione</option>
-              {categories.map((item) => {
-                return (
-                  <option value={item.name} key={item.id}>
-                    {item.name}
-                  </option>
-                )
-              })}
-            </select>
 
-            {categoryError && (
+            <Controller
+              control={control}
+              name="category"
+              render={({ field: { onBlur, onChange } }) => (
+                <CategorySelectInput
+                  errorMessage={errors.category?.message}
+                  onChange={onChange}
+                  onBlur={onBlur}
+                />
+              )}
+            />
+
+            {errors.category && (
               <span className="text-red-600 text-sm">
                 Selecione uma categoria
               </span>
@@ -294,14 +236,11 @@ export default function CreateCar() {
             <Controller
               control={control}
               name="daily_rate"
-              render={({ field: { onChange, value } }) => (
-                <Input
-                  value={value}
-                  errorMessage={errors.daily_rate}
-                  onChange={(e) => {
-                    handleChange(e)
-                    onChange(e)
-                  }}
+              render={({ field: { onChange, value, onBlur } }) => (
+                <DailyRateInput
+                  change={onChange}
+                  onBlur={onBlur}
+                  errorMessage={errors.daily_rate?.message}
                 />
               )}
             />
@@ -314,7 +253,7 @@ export default function CreateCar() {
           </div>
 
           <div className="flex flex-col gap-2 col-span-2 ">
-            <label htmlFor="daily_rate" className="text-sm">
+            <label htmlFor="license_plate" className="text-sm">
               Placa do carro
             </label>
             <Controller
@@ -333,6 +272,134 @@ export default function CreateCar() {
             {errors.license_plate && (
               <span className="text-red-600 text-sm">
                 {errors.license_plate.message}
+              </span>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-2 col-span-2 ">
+            <label htmlFor="gearbox">Câmbio</label>
+
+            <select
+              {...register('gearbox')}
+              className={`bg-white w-full p-2 rounded-lg outline-gray-300 ${errors.gearbox && 'border-red-600 border-2 outline-red-600'}`}
+            >
+              <option value="selecione">selecione</option>
+              <option value="manual">Manual</option>
+              <option value="auto">Automático</option>
+            </select>
+            {errors.gearbox && (
+              <span className="text-red-600 text-sm">
+                Selecione um tipo de Câmbio
+              </span>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-2 col-span-1 ">
+            <label htmlFor="speed">Velocidade Max. (km/h)</label>
+
+            <Controller
+              control={control}
+              name="speed"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  errorMessage={errors.speed}
+                  type="number"
+                  onChange={onChange}
+                  onBlur={onBlur}
+                />
+              )}
+            />
+
+            {errors.speed && (
+              <span className="text-red-600 text-sm">
+                {errors.speed.message}
+              </span>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-2 col-span-1 ">
+            <label htmlFor="people">Números de pessoas</label>
+            <Controller
+              control={control}
+              name="people"
+              render={({ field: { onChange, onBlur } }) => (
+                <Input
+                  type="number"
+                  errorMessage={errors.people}
+                  onChange={onChange}
+                  onBlur={onBlur}
+                />
+              )}
+            />
+
+            {errors.people && (
+              <span className="text-red-600 text-sm">
+                {errors.people.message}
+              </span>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-2 col-span-2 ">
+            <label htmlFor="aceleration">
+              Tempo de aceleração (0 a 100) em segundos
+            </label>
+            <Controller
+              control={control}
+              name="aceleration"
+              render={({ field: { onChange, onBlur } }) => (
+                <Input
+                  type="number"
+                  errorMessage={errors.aceleration}
+                  onChange={onChange}
+                  onBlur={onBlur}
+                />
+              )}
+            />
+
+            {errors.aceleration && (
+              <span className="text-red-600 text-sm">
+                {errors.aceleration.message}
+              </span>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-2 col-span-1 ">
+            <label htmlFor="fuel">Combustível</label>
+            <select
+              {...register('fuel')}
+              className={`bg-white w-full p-2 rounded-lg outline-gray-300 ${errors.gearbox && 'border-red-600 border-2 outline-red-600'}`}
+            >
+              <option value="selecione">selecione</option>
+              <option value="gasoline">Gasolina</option>
+              <option value="diesel">diesel</option>
+              <option value="eletric">Elétrico</option>
+            </select>
+
+            {errors.fuel && (
+              <span className="text-red-600 text-sm">
+                selecione o tipo de combustível
+              </span>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-2 col-span-1">
+            <label htmlFor="power">Forca (HP)</label>
+            <Controller
+              control={control}
+              name="power"
+              render={({ field: { onChange, onBlur } }) => (
+                <Input
+                  type="number"
+                  errorMessage={errors.power}
+                  onChange={onChange}
+                  onBlur={onBlur}
+                />
+              )}
+            />
+
+            {errors.power && (
+              <span className="text-red-600 text-sm">
+                {errors.power.message}
               </span>
             )}
           </div>
@@ -365,6 +432,7 @@ export default function CreateCar() {
               {...getRootProps()}
             >
               <PhotoSvg width={200} height={200} />
+
               <div className="p-2 bg-blue-600 rounded-full absolute">
                 <Plus width={40} height={40} color="white" />
               </div>
@@ -402,7 +470,7 @@ export default function CreateCar() {
             className=" flex rounded-lg bg-green-600 w-[7rem] py-2 justify-center text-white mb-10"
             onClick={handleSubmit(handleCreateCar)}
           >
-            {isPending ? (
+            {isSubmitting ? (
               <Loading />
             ) : (
               <p className="text-md text-center">Criar</p>
@@ -411,5 +479,88 @@ export default function CreateCar() {
         </div>
       </div>
     </div>
+  )
+}
+
+interface CategorySelectProps
+  extends React.SelectHTMLAttributes<HTMLSelectElement> {
+  errorMessage: string | undefined
+}
+function CategorySelectInput({ errorMessage, ...rest }: CategorySelectProps) {
+  const [categories, setCategories] = useState<Category[]>([])
+
+  async function getCategories() {
+    try {
+      const response = await axiosAuth.get(`/category`)
+
+      const data = response.data
+
+      setCategories(data.categories)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  useEffect(() => {
+    getCategories()
+  }, [])
+  return (
+    <select
+      defaultValue={''}
+      {...rest}
+      className={`bg-white w-full p-2 rounded-lg outline-gray-300 ${errorMessage && 'border-red-600 border-2 outline-red-600'}`}
+    >
+      <option value={''}>Selecione</option>
+      {categories.map((item) => {
+        return (
+          <option value={item.id} key={item.id}>
+            {item.name}
+          </option>
+        )
+      })}
+    </select>
+  )
+}
+
+interface DailyRateProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  change: (e: ChangeEvent) => void
+  errorMessage: string | undefined
+}
+
+function DailyRateInput({
+  change,
+  errorMessage,
+
+  ...rest
+}: DailyRateProps) {
+  const [daily, setDaily] = useState<string>('')
+  function handleChange(event: ChangeEvent<HTMLInputElement>) {
+    const { value } = event.target
+    const formatedValue = formatToCurrency(value)
+    setDaily(formatedValue)
+  }
+  function formatToCurrency(input: string) {
+    // Remove qualquer caractere que não seja um dígito numérico
+    let formatedValue = input.replace(/\D/g, '')
+
+    // Formata o número para o formato monetário (com duas casas decimais e separador de milhares)
+    formatedValue = (Number(formatedValue) / 100).toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+    })
+
+    return formatedValue
+  }
+
+  return (
+    <Input
+      errorMessage={errorMessage}
+      value={daily}
+      {...rest}
+      onChange={(e) => {
+        change(e)
+        handleChange(e)
+      }}
+    />
   )
 }

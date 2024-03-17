@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import { auth } from '@/lib/auth'
 export async function Header() {
-  const user = await auth()
+  const session = await auth()
 
   return (
     <div className="bg-gray-100 w-full py-6 drop-shadow-lg">
@@ -14,7 +14,7 @@ export async function Header() {
           className="w-16 h-16 rounded-full object-cover"
         />
         <div className="ml-5">
-          <p className="text-main">{user?.user?.name}</p>
+          <p className="text-main">{session?.user?.name}</p>
           <p className="text-subtitle">Admin</p>
         </div>
       </div>
