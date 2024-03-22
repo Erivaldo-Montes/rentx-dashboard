@@ -11,7 +11,11 @@ export const useRefreshToken = () => {
       refresh_token: session?.user.refreshToken,
     })
 
-    if (session) session.user.accessToken = res.data.token
+    console.log(res.data)
+
+    if (session) {
+      session.user.accessToken = res.data.token
+    }
   }
 
   return refreshToken

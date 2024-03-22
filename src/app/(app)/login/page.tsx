@@ -27,38 +27,46 @@ export default function LoginPage() {
     undefined,
   )
 
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
   const navigation = useRouter()
 
   const {
     register,
     control,
     handleSubmit,
-    formState: { isSubmitting, errors },
+    formState: { errors },
   } = useForm<LoginSchemaFormData>({
     resolver: zodResolver(LoginSchema),
     defaultValues: { password: '' },
   })
 
   async function onSubmit(data: LoginSchemaFormData) {
-    setErrorMessage(undefined)
+    try {
+      setErrorMessage(undefined)
+      setIsSubmitting(true)
 
-    const result = await signIn('credentials', {
-      redirect: false,
-      email: data.email,
-      password: data.password,
-    })
+      const result = await signIn('credentials', {
+        redirect: false,
+        email: data.email,
+        password: data.password,
+      })
 
-    if (result?.error) {
-      console.log(result.status)
-      switch (result.error) {
-        case 'CredentialsSignin':
-          return toast.error('Email ou senha estão errados')
-        default:
-          return toast.error('Algo deu errado, tente mais')
+      if (result?.error) {
+        console.log(result.status)
+        switch (result.error) {
+          case 'CredentialsSignin':
+            return toast.error('Email ou senha estão errados')
+          default:
+            return toast.error('Algo deu errado, tente mais')
+        }
       }
-    }
 
-    navigation.replace('/dashboard/cars')
+      navigation.replace('/dashboard/cars')
+    } catch (error) {
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   useEffect(() => {

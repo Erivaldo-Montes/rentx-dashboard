@@ -1,7 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { CaretLeft, CaretRight } from '@phosphor-icons/react'
-import { Loading } from './loading'
+import { CaretLeft, CaretRight, FolderNotchOpen } from '@phosphor-icons/react'
 import { toast } from 'react-toastify'
 import { axiosAuth } from '@/lib/axios'
 interface CarsProps {
@@ -42,6 +41,7 @@ export function CarList() {
       toast.error('server error')
     } finally {
       setIsFetching(false)
+      console.log(cars)
     }
   }
 
@@ -53,26 +53,37 @@ export function CarList() {
     <>
       {isFetching ? (
         <div className="bg-white h-[30rem] flex justify-center items-center">
-          <Loading color="#777777" />
+          <CarLoading />
         </div>
       ) : (
         <div className="overflow-auto  h-[30rem] bg-white">
-          {cars.map((cars) => {
-            return (
-              <div
-                key={cars.id}
-                className="border-b-[1px] w-full flex  p-2 justify-between  bg-white"
-              >
-                <div className="text-center p-2 w-40">{cars.name}</div>
-                <div className="text-center p-2 w-40">{cars.brand}</div>
-                <div className="text-center p-2 w-40">
-                  R$ {cars.daily_rate / 100}
+          {cars.length === 0 ? (
+            <div className="flex flex-col justify-center items-center h-full w-full">
+              <FolderNotchOpen color="#e2e8f0" size={60} />
+              <p className="text-gray-400 text-sm">
+                Não há carros para listar, crie um carro começar
+              </p>
+            </div>
+          ) : (
+            cars.map((cars) => {
+              return (
+                <div
+                  key={cars.id}
+                  className="border-b-[1px] w-full flex  p-2 justify-between  bg-white"
+                >
+                  <div className="text-center p-2 w-40">{cars.name}</div>
+                  <div className="text-center p-2 w-40">{cars.brand}</div>
+                  <div className="text-center p-2 w-40">
+                    R$ {cars.daily_rate / 100}
+                  </div>
+                  <div className="text-center p-2 w-40">
+                    {cars.license_plate}
+                  </div>
+                  <div className="text-center p-2 w-40">sim</div>
                 </div>
-                <div className="text-center p-2 w-40">{cars.license_plate}</div>
-                <div className="text-center p-2 w-40">sim</div>
-              </div>
-            )
-          })}
+              )
+            })
+          )}
         </div>
       )}
 
@@ -118,5 +129,13 @@ export function CarList() {
         )}
       </div>
     </>
+  )
+}
+
+function CarLoading() {
+  return (
+    <div
+      className={`w-6 h-6 rounded-full animate-spin border-2 border-solid border-indigo-600 border-t-transparent`}
+    ></div>
   )
 }

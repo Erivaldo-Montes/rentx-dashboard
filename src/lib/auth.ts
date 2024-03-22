@@ -36,7 +36,6 @@ export const {
               const responseProfile = await axios('/me', {
                 headers: { Authorization: `Bearer ${response.data.token}` },
               })
-              console.log(responseProfile)
 
               if (responseProfile.data) {
                 const user = {

@@ -14,7 +14,7 @@ import { v4 as uuidV4 } from 'uuid'
 import { Loading } from '@/components/loading'
 import { AppError } from '@/utils/appError'
 import { toast } from 'react-toastify'
-import { axiosAuth } from '@/lib/axios'
+import useAxiosAuth from '@/lib/hooks/useAxiosAuth'
 
 enum CategoriesEnum {
   SUV = 'SUV',
@@ -46,10 +46,15 @@ const carSchema = z.object({
 
 type CreateCarDataSchema = z.infer<typeof carSchema>
 
+type SpecificationsSchema = Pick<
+  CreateCarDataSchema,
+  'people' | 'gearbox' | 'aceleration' | 'power' | 'fuel' | 'speed'
+>
+
 export default function CreateCar() {
+  const axiosAuth = useAxiosAuth()
   const [files, setFiles] = useState<any[]>([])
   const containerRef = useRef<HTMLDivElement>(null)
-
   const router = useRouter()
   const { getRootProps } = useDropzone({
     accept: {
@@ -98,8 +103,30 @@ export default function CreateCar() {
       const valueString = value.join('')
       data.daily_rate = valueString
       try {
-        await axiosAuth.post('/api/car/create', data)
-        console.log('-asdasdasd')
+        const responseCar = await axiosAuth.post('/car', {
+          name: data.name,
+          brand: data.brand,
+          about: data.about,
+          daily_rate: Number(data.daily_rate),
+          license_plate: data.license_plate,
+          category_id: data.category,
+        })
+
+        const specifications: (keyof SpecificationsSchema)[] = [
+          'aceleration',
+          'fuel',
+          'gearbox',
+          'people',
+          'power',
+          'speed',
+        ]
+
+        specifications.forEach((specification) => {
+          axiosAuth.patch(`/car/specification/${responseCar.data.id}`, {
+            name: specification,
+            description: String(data[specification]),
+          })
+        })
       } catch (error) {
         console.log('response---')
         const isAppError = error instanceof AppError
@@ -488,7 +515,7 @@ interface CategorySelectProps
 }
 function CategorySelectInput({ errorMessage, ...rest }: CategorySelectProps) {
   const [categories, setCategories] = useState<Category[]>([])
-
+  const axiosAuth = useAxiosAuth()
   async function getCategories() {
     try {
       const response = await axiosAuth.get(`/category`)

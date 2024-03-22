@@ -1,5 +1,5 @@
 import axios from 'axios'
-
+import { auth } from './auth'
 const baseURL = 'http://0.0.0.0:3333'
 
 export default axios.create({

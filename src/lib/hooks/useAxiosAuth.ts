@@ -4,10 +4,13 @@ import { useSession } from 'next-auth/react'
 import { useEffect } from 'react'
 import { axiosAuth } from '../axios'
 import { useRefreshToken } from './useRefreshToken'
+import { AxiosError } from 'axios'
+import { AppError } from '@/utils/appError'
 
-const useAxioxAuth = () => {
+const useAxiosAuth = () => {
   const { data: session } = useSession()
   const refreshToken = useRefreshToken()
+
   useEffect(() => {
     const requestInterceptor = axiosAuth.interceptors.request.use(
       (config) => {
@@ -22,17 +25,18 @@ const useAxioxAuth = () => {
 
     const responseInterceptor = axiosAuth.interceptors.response.use(
       (response) => response,
-      async (error) => {
+      async (error: AxiosError) => {
         const prevRequest = error.config
 
-        if (error.response?.status === 401 && !prevRequest.sent) {
-          prevRequest.sent = true
+        if (error.response?.status === 401 && prevRequest) {
           await refreshToken()
           prevRequest.headers.Authorization = `Bearer ${session?.user.accessToken}`
 
           return axiosAuth(prevRequest)
         }
-
+        if (error.response?.data) {
+          return Promise.reject(new AppError(error.response.data.message))
+        }
         return Promise.reject(error)
       },
     )
@@ -41,9 +45,9 @@ const useAxioxAuth = () => {
       axiosAuth.interceptors.request.eject(requestInterceptor)
       axiosAuth.interceptors.response.eject(responseInterceptor)
     }
-  }, [session])
+  }, [session, refreshToken])
 
   return axiosAuth
 }
 
-export default useAxioxAuth
+export default useAxiosAuth
