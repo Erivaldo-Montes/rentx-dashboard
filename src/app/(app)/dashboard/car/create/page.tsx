@@ -14,13 +14,7 @@ import { v4 as uuidV4 } from 'uuid'
 import { Loading } from '@/components/loading'
 import { AppError } from '@/utils/appError'
 import { toast } from 'react-toastify'
-import useAxiosAuth from '@/lib/hooks/useAxiosAuth'
-
-enum CategoriesEnum {
-  SUV = 'SUV',
-  sedan = 'sedan',
-  espotivo = 'esportivo',
-}
+import { useAxiosAuth } from '@/lib/hooks/useAxiosAuth'
 
 type Category = {
   id: string
@@ -128,7 +122,6 @@ export default function CreateCar() {
           })
         })
       } catch (error) {
-        console.log('response---')
         const isAppError = error instanceof AppError
         const title = isAppError ? error.message : 'Não foi possivel criar'
         toast.error(title)

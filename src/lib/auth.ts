@@ -2,7 +2,7 @@ import NextAuth from 'next-auth'
 import Credencial from 'next-auth/providers/credentials'
 import axios from './axios'
 import { z } from 'zod'
-
+import { cookies } from 'next/headers'
 export const {
   auth,
   signIn,
@@ -26,7 +26,7 @@ export const {
 
         if (parserdCredentials.success) {
           const { email, password } = credentials
-
+          console.log(email, password)
           try {
             const response = await axios.post('/session', { email, password })
             if (response.status === 200) {
@@ -68,11 +68,19 @@ export const {
       }
       return true
     },
-    async jwt({ token, user }) {
-      return { ...token, ...user }
+    async jwt({ token, user, session, trigger }) {
+      if (user) {
+        token.user = user
+      }
+
+      if (trigger === 'update' && session) {
+        token = { ...token, ...session }
+        return token
+      }
+      return { ...token, ...session }
     },
     async session({ session, token, user }) {
-      session.user = token as any
+      session.user = token.user as any
       return session
     },
   },

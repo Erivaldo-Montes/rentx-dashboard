@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import { CaretLeft, CaretRight, FolderNotchOpen } from '@phosphor-icons/react'
 import { toast } from 'react-toastify'
-import { axiosAuth } from '@/lib/axios'
+import { useAxiosAuth } from '@/lib/hooks/useAxiosAuth'
 interface CarsProps {
   id: string
   name: string
@@ -16,6 +16,7 @@ export function CarList() {
   const [cars, setCars] = useState([] as CarsProps[])
   const [isFetching, setIsFetching] = useState(true)
   const [nextPageCars, setNextPageCars] = useState([] as CarsProps[])
+  const axiosAuth = useAxiosAuth()
 
   function nextPage() {
     setCurrentPage((state) => state + 1)
@@ -25,27 +26,26 @@ export function CarList() {
     setCurrentPage((state) => state - 1)
   }
 
-  async function getCars() {
-    try {
-      setIsFetching(true)
-      const carsList = await axiosAuth.get(`/car/list?page=${currentPage}`)
-
-      setCars(carsList.data.cars)
-
-      const carsListNextPage = await axiosAuth.get(
-        `/car/list?page=${currentPage + 1}`,
-      )
-
-      setNextPageCars(carsListNextPage.data.cars)
-    } catch (error) {
-      toast.error('server error')
-    } finally {
-      setIsFetching(false)
-      console.log(cars)
-    }
-  }
-
   useEffect(() => {
+    async function getCars() {
+      try {
+        setIsFetching(true)
+        const carsList = await axiosAuth.get(`/car/list?page=${currentPage}`)
+
+        setCars(carsList.data.cars)
+
+        const carsListNextPage = await axiosAuth.get(
+          `/car/list?page=${currentPage + 1}`,
+        )
+
+        setNextPageCars(carsListNextPage.data.cars)
+      } catch (error) {
+        toast.error('server error')
+      } finally {
+        setIsFetching(false)
+      }
+    }
+
     getCars()
   }, [])
 

@@ -1,9 +1,24 @@
+'use client'
 import { Header } from '@/components/header'
-import { Plus, MagnifyingGlass } from '@phosphor-icons/react/dist/ssr'
+import { Plus, MagnifyingGlass } from '@phosphor-icons/react'
 import { CarList } from '@/components/carsList'
 import Link from 'next/link'
+import { useSession } from 'next-auth/react'
+import {
+  AUTH_REFRESH_STORAGE,
+  AUTH_TOKEN_STORAGE,
+} from '@/storage/storage-config'
+import { useEffect } from 'react'
 
-export default async function Cars() {
+export default function Cars() {
+  const { data } = useSession()
+  useEffect(() => {
+    const refreshToken = localStorage.getItem(AUTH_REFRESH_STORAGE)
+    if (!refreshToken) {
+      localStorage.setItem(AUTH_TOKEN_STORAGE, data?.user.accessToken)
+      localStorage.setItem(AUTH_REFRESH_STORAGE, data?.user.refreshToken)
+    }
+  }, [])
   return (
     <div>
       <Header />

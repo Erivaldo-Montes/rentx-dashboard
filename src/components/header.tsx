@@ -1,7 +1,8 @@
+'use client'
 import Image from 'next/image'
-import { auth } from '@/lib/auth'
-export async function Header() {
-  const session = await auth()
+import { useSession } from 'next-auth/react'
+export function Header() {
+  const { data: session } = useSession()
 
   return (
     <div className="bg-gray-100 w-full py-6 drop-shadow-lg">
