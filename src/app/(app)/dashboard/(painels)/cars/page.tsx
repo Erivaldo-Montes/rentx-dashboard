@@ -12,13 +12,14 @@ import { useEffect } from 'react'
 
 export default function Cars() {
   const { data } = useSession()
+  const refreshToken = localStorage.getItem(AUTH_REFRESH_STORAGE)
   useEffect(() => {
-    const refreshToken = localStorage.getItem(AUTH_REFRESH_STORAGE)
-    if (!refreshToken) {
+    console.log('asas', data?.user)
+    if (!refreshToken && data) {
       localStorage.setItem(AUTH_TOKEN_STORAGE, data?.user.accessToken)
       localStorage.setItem(AUTH_REFRESH_STORAGE, data?.user.refreshToken)
     }
-  }, [])
+  }, [data, refreshToken])
   return (
     <div>
       <Header />

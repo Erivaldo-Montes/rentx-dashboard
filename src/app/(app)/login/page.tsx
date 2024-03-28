@@ -8,9 +8,9 @@ import Image from 'next/image'
 import { Loading } from '@/components/loading'
 import { toast } from 'react-toastify'
 import { useForm, Controller } from 'react-hook-form'
-import { z } from 'zod'
+import { date, z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { signIn } from 'next-auth/react'
+import { signIn, useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 
 const LoginSchema = z.object({
@@ -28,7 +28,6 @@ export default function LoginPage() {
   )
 
   const [isSubmitting, setIsSubmitting] = useState(false)
-
   const navigation = useRouter()
 
   const {

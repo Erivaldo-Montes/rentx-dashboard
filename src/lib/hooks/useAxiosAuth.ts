@@ -8,7 +8,8 @@ import {
   AUTH_TOKEN_STORAGE,
 } from '@/storage/storage-config'
 import { AxiosError } from 'axios'
-import { signOut } from 'next-auth/react'
+import { signOutSession } from '@/app/action'
+
 type FailedQueue = {
   onSuccess: (token: string) => void
   onFailed: (error: any) => void
@@ -19,12 +20,9 @@ let failedRequestQueue: FailedQueue[] = []
 let isRefreshing = false
 
 export function useAxiosAuth() {
-  const refreshToken = localStorage.getItem(AUTH_REFRESH_STORAGE)
-  const token = localStorage.getItem(AUTH_TOKEN_STORAGE)
-
   useEffect(() => {
     const requestIntercept = axiosAuth.interceptors.request.use((config) => {
-      console.log('request', token)
+      const token = localStorage.getItem(AUTH_TOKEN_STORAGE)
       if (!config.headers.Authorization) {
         config.headers['Authorization'] = `Bearer ${token}`
       }
@@ -37,14 +35,13 @@ export function useAxiosAuth() {
         if (error.response?.status === 401) {
           if (error.response?.data?.message === 'Unauthorized') {
             // atualizar token
-            if (!refreshToken) {
-              await signOut()
-            }
             const originalConfig = error.config
             if (originalConfig) {
               if (!isRefreshing) {
                 isRefreshing = true
                 try {
+                  const refreshToken =
+                    localStorage.getItem(AUTH_REFRESH_STORAGE)
                   const tokenResponse = await axios.post('/refresh-token', {
                     refresh_token: refreshToken,
                   })
@@ -53,9 +50,8 @@ export function useAxiosAuth() {
                     AUTH_TOKEN_STORAGE,
                     tokenResponse.data.token,
                   )
-                  console.log('token', tokenResponse.data)
 
-                  originalConfig.headers.common['Authorization'] =
+                  originalConfig.headers.Authorization =
                     tokenResponse.data.token
 
                   failedRequestQueue.forEach((request) => {
@@ -65,11 +61,11 @@ export function useAxiosAuth() {
                   failedRequestQueue = []
                 } catch (error) {
                   localStorage.clear()
-                  await signOut({ redirect: false })
-                  console.log('refresh')
                   failedRequestQueue.forEach((request) => {
                     request.onFailed(error)
                   })
+                  await signOutSession()
+                  console.log(error)
                 } finally {
                   isRefreshing = false
                 }
@@ -103,7 +99,7 @@ export function useAxiosAuth() {
       axiosAuth.interceptors.response.eject(responseInterceptor)
       axiosAuth.interceptors.request.eject(requestIntercept)
     }
-  }, [refreshToken, token])
+  }, [])
 
   return axiosAuth
 }

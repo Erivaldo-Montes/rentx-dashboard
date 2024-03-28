@@ -2,7 +2,6 @@ import NextAuth from 'next-auth'
 import Credencial from 'next-auth/providers/credentials'
 import axios from './axios'
 import { z } from 'zod'
-import { cookies } from 'next/headers'
 export const {
   auth,
   signIn,
@@ -57,17 +56,6 @@ export const {
     }),
   ],
   callbacks: {
-    authorized({ auth, request: { nextUrl } }) {
-      const isLoggedIn = !!auth?.user
-      const isOnDashboard = nextUrl.pathname.startsWith('/dashboard')
-      if (isOnDashboard) {
-        if (isLoggedIn) return true
-        return false // Redirect unauthenticated users to login page
-      } else if (isLoggedIn) {
-        return Response.redirect(new URL('/dashboard', nextUrl))
-      }
-      return true
-    },
     async jwt({ token, user, session, trigger }) {
       if (user) {
         token.user = user
