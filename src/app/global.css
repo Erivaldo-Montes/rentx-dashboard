@@ -17,3 +17,10 @@
     margin: 0;
   }
 }
+.thumbs .swiper-slide {
+  opacity: 0.5;
+}
+
+.thumbs .swiper-slide-thumb-active {
+  opacity: 1;
+}

@@ -1,8 +1,11 @@
 'use client'
+
 import { useEffect, useState } from 'react'
 import { CaretLeft, CaretRight, FolderNotchOpen } from '@phosphor-icons/react'
 import { toast } from 'react-toastify'
 import { useAxiosAuth } from '@/lib/hooks/useAxiosAuth'
+import { useRouter } from 'next/navigation'
+
 interface CarsProps {
   id: string
   name: string
@@ -17,6 +20,11 @@ export function CarList() {
   const [isFetching, setIsFetching] = useState(true)
   const [nextPageCars, setNextPageCars] = useState([] as CarsProps[])
   const axiosAuth = useAxiosAuth()
+  const router = useRouter()
+
+  function handleClick(id: string) {
+    router.push(`/dashboard/car/${id}`)
+  }
 
   function nextPage() {
     setCurrentPage((state) => state + 1)
@@ -65,19 +73,20 @@ export function CarList() {
               </p>
             </div>
           ) : (
-            cars.map((cars) => {
+            cars.map((car) => {
               return (
                 <div
-                  key={cars.id}
-                  className="border-b-[1px] w-full flex  p-2 justify-between  bg-white"
+                  key={car.id}
+                  className="border-b-[1px] w-full flex  p-2 justify-between  bg-white cursor-pointer"
+                  onClick={() => handleClick(car.id)}
                 >
-                  <div className="text-center p-2 w-40">{cars.name}</div>
-                  <div className="text-center p-2 w-40">{cars.brand}</div>
+                  <div className="text-center p-2 w-40">{car.name}</div>
+                  <div className="text-center p-2 w-40">{car.brand}</div>
                   <div className="text-center p-2 w-40">
-                    R$ {cars.daily_rate / 100}
+                    R$ {car.daily_rate / 100}
                   </div>
                   <div className="text-center p-2 w-40">
-                    {cars.license_plate}
+                    {car.license_plate}
                   </div>
                   <div className="text-center p-2 w-40">sim</div>
                 </div>
