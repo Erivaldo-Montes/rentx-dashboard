@@ -15,13 +15,8 @@ import { Loading } from '@/components/loading'
 import { AppError } from '@/utils/appError'
 import { toast } from 'react-toastify'
 import { useAxiosAuth } from '@/lib/hooks/useAxiosAuth'
-
-type Category = {
-  id: string
-  name: string
-  description: string
-  create_at: string
-}
+import { DailyRateInput } from '@/components/dailyRateInput'
+import { SelectCategoryInput } from '@/components/selectCategory'
 
 const carSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
@@ -233,7 +228,7 @@ export default function CreateCar() {
               control={control}
               name="category"
               render={({ field: { onBlur, onChange } }) => (
-                <CategorySelectInput
+                <SelectCategoryInput
                   errorMessage={errors.category?.message}
                   onChange={onChange}
                   onBlur={onBlur}
@@ -499,88 +494,5 @@ export default function CreateCar() {
         </div>
       </div>
     </div>
-  )
-}
-
-interface CategorySelectProps
-  extends React.SelectHTMLAttributes<HTMLSelectElement> {
-  errorMessage: string | undefined
-}
-function CategorySelectInput({ errorMessage, ...rest }: CategorySelectProps) {
-  const [categories, setCategories] = useState<Category[]>([])
-  const axiosAuth = useAxiosAuth()
-  async function getCategories() {
-    try {
-      const response = await axiosAuth.get(`/category`)
-
-      const data = response.data
-
-      setCategories(data.categories)
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  useEffect(() => {
-    getCategories()
-  }, [])
-  return (
-    <select
-      defaultValue={''}
-      {...rest}
-      className={`bg-white w-full p-2 rounded-lg outline-gray-300 ${errorMessage && 'border-red-600 border-2 outline-red-600'}`}
-    >
-      <option value={''}>Selecione</option>
-      {categories.map((item) => {
-        return (
-          <option value={item.id} key={item.id}>
-            {item.name}
-          </option>
-        )
-      })}
-    </select>
-  )
-}
-
-interface DailyRateProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  change: (e: ChangeEvent) => void
-  errorMessage: string | undefined
-}
-
-function DailyRateInput({
-  change,
-  errorMessage,
-
-  ...rest
-}: DailyRateProps) {
-  const [daily, setDaily] = useState<string>('')
-  function handleChange(event: ChangeEvent<HTMLInputElement>) {
-    const { value } = event.target
-    const formatedValue = formatToCurrency(value)
-    setDaily(formatedValue)
-  }
-  function formatToCurrency(input: string) {
-    // Remove qualquer caractere que não seja um dígito numérico
-    let formatedValue = input.replace(/\D/g, '')
-
-    // Formata o número para o formato monetário (com duas casas decimais e separador de milhares)
-    formatedValue = (Number(formatedValue) / 100).toLocaleString('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    })
-
-    return formatedValue
-  }
-
-  return (
-    <Input
-      errorMessage={errorMessage}
-      value={daily}
-      {...rest}
-      onChange={(e) => {
-        change(e)
-        handleChange(e)
-      }}
-    />
   )
 }
