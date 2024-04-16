@@ -22,7 +22,7 @@ export function CarImages() {
     console.log(thumbsSwiper)
   }, [thumbsSwiper])
   return (
-    <div className="max-w-[600px]">
+    <div className="max-w-[600px] max-lg:w-full">
       <Swiper
         modules={[Navigation, FreeMode, Thumbs]}
         slidesPerView={1}
@@ -31,7 +31,7 @@ export function CarImages() {
         thumbs={{
           swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null,
         }}
-        className="h-[400px] w-full"
+        className="h-[300px] w-full"
       >
         {imagesCarArray.map((item, index) => {
           return (
@@ -41,7 +41,7 @@ export function CarImages() {
                   src={item}
                   fill
                   alt="car image"
-                  className="block w-full h-full object-contain"
+                  className="block object-contain"
                 />
               </div>
             </SwiperSlide>
@@ -65,7 +65,7 @@ export function CarImages() {
       <div>
         <Swiper
           onSwiper={setThumbsSwiper}
-          slidesPerView={4}
+          slidesPerView={6}
           spaceBetween={12}
           freeMode={true}
           watchSlidesProgress={true}

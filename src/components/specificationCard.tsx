@@ -12,11 +12,11 @@ export function SpecificationCard({
 }: SpecificationCardProps) {
   return (
     <div
-      className="bg-gray-200 p-5 flex justify-center items-center flex-col"
+      className="bg-gray-200 p-5 flex justify-center items-center flex-col w-[10.25rem] h-[10.25rem]"
       {...rest}
     >
       <NextImage width={100} height={100} src={imageUrl} alt="icon" />
-      <span>{field}</span>
+      <span className="mt-4">{field}</span>
     </div>
   )
 }
