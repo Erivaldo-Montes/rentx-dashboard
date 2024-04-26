@@ -11,12 +11,12 @@ import { Input } from '@/components/input'
 import { useDropzone } from 'react-dropzone'
 import Image from 'next/image'
 import { v4 as uuidV4 } from 'uuid'
-import { Loading } from '@/components/loading'
 import { AppError } from '@/utils/appError'
 import { toast } from 'react-toastify'
 import { useAxiosAuth } from '@/lib/hooks/useAxiosAuth'
 import { DailyRateInput } from '@/components/dailyRateInput'
 import { SelectCategoryInput } from '@/components/selectCategory'
+import { Button } from '@/components/button'
 
 const carSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
@@ -27,9 +27,9 @@ const carSchema = z.object({
   speed: z.coerce.number().gt(1, 'Velecidade é obrigatório'),
   people: z.string().min(1, 'Números de pessoas é obrigatório'),
   gearbox: z.enum(['manual', 'auto']),
-  aceleration: z.coerce.number().min(1, 'Aceleração é obrigatório'),
+  acceleration: z.coerce.number().min(1, 'Aceleração é obrigatório'),
   power: z.string().min(1, 'Força é obrigatório'),
-  fuel: z.enum(['gasoline', 'disel', 'eletric']),
+  fuel: z.enum(['gasoline', 'diesel', 'electric']),
   category: z.string().min(1, 'Obrigatório'),
 })
 
@@ -37,7 +37,7 @@ type CreateCarDataSchema = z.infer<typeof carSchema>
 
 type SpecificationsSchema = Pick<
   CreateCarDataSchema,
-  'people' | 'gearbox' | 'aceleration' | 'power' | 'fuel' | 'speed'
+  'people' | 'gearbox' | 'acceleration' | 'power' | 'fuel' | 'speed'
 >
 
 export default function CreateCar() {
@@ -45,6 +45,7 @@ export default function CreateCar() {
   const [files, setFiles] = useState<any[]>([])
   const containerRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
+
   const { getRootProps } = useDropzone({
     accept: {
       'image/*': [],
@@ -78,7 +79,7 @@ export default function CreateCar() {
       license_plate: '',
       daily_rate: '',
       name: '',
-      aceleration: 0,
+      acceleration: 0,
       people: '',
       power: '',
       speed: 0,
@@ -102,7 +103,7 @@ export default function CreateCar() {
         })
 
         const specifications: (keyof SpecificationsSchema)[] = [
-          'aceleration',
+          'acceleration',
           'fuel',
           'gearbox',
           'people',
@@ -110,12 +111,39 @@ export default function CreateCar() {
           'speed',
         ]
 
-        specifications.forEach((specification) => {
-          axiosAuth.patch(`/car/specification/${responseCar.data.id}`, {
-            name: specification,
-            description: String(data[specification]),
+        const formattedSpecification: Record<string, any>[] =
+          specifications.map((item) => {
+            switch (item) {
+              case 'acceleration':
+                return { [item]: String(data['acceleration']).concat(' s') }
+              case 'power':
+                return { [item]: String(data['power']).concat(' HP') }
+              case 'speed':
+                return { [item]: String(data['speed']).concat(' km/h') }
+              default:
+                return { [item]: String(data[item]) }
+            }
           })
+
+        console.log()
+        specifications.forEach((specification) => {
+          axiosAuth
+            .patch(`/car/specification/${responseCar.data.id}`, {
+              name: specification,
+              description: formattedSpecification.find(
+                (item) => item['speed'],
+              )!['speed'],
+            })
+            .then()
         })
+
+        await axiosAuth.post(`/car/images/${responseCar.data.id}`, files, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+        toast.success('Carro criado com sucesso')
+        router.replace('/dashboard/cars')
       } catch (error) {
         const isAppError = error instanceof AppError
         const title = isAppError ? error.message : 'Não foi possivel criar'
@@ -134,6 +162,7 @@ export default function CreateCar() {
   }
 
   useEffect(() => {
+    console.log(files)
     if (files.length < 3) {
       return
     }
@@ -355,25 +384,25 @@ export default function CreateCar() {
           </div>
 
           <div className="flex flex-col gap-2 col-span-2 ">
-            <label htmlFor="aceleration">
+            <label htmlFor="acceleration">
               Tempo de aceleração (0 a 100) em segundos
             </label>
             <Controller
               control={control}
-              name="aceleration"
+              name="acceleration"
               render={({ field: { onChange, onBlur } }) => (
                 <Input
                   type="number"
-                  errorMessage={errors.aceleration}
+                  errorMessage={errors.acceleration}
                   onChange={onChange}
                   onBlur={onBlur}
                 />
               )}
             />
 
-            {errors.aceleration && (
+            {errors.acceleration && (
               <span className="text-red-600 text-sm">
-                {errors.aceleration.message}
+                {errors.acceleration.message}
               </span>
             )}
           </div>
@@ -387,7 +416,7 @@ export default function CreateCar() {
               <option value="selecione">selecione</option>
               <option value="gasoline">Gasolina</option>
               <option value="diesel">diesel</option>
-              <option value="eletric">Elétrico</option>
+              <option value="electric">Elétrico</option>
             </select>
 
             {errors.fuel && (
@@ -480,17 +509,11 @@ export default function CreateCar() {
         </div>
 
         <div className="w-full flex justify-center mt-10">
-          <button
-            type="submit"
-            className=" flex rounded-lg bg-green-600 w-[7rem] py-2 justify-center text-white mb-10"
+          <Button
+            isSubmitting={isSubmitting}
             onClick={handleSubmit(handleCreateCar)}
-          >
-            {isSubmitting ? (
-              <Loading />
-            ) : (
-              <p className="text-md text-center">Criar</p>
-            )}
-          </button>
+            text="Criar"
+          />
         </div>
       </div>
     </div>

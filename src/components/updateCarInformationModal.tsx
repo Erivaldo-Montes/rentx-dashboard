@@ -3,6 +3,7 @@ import { X } from '@phosphor-icons/react'
 import { Input } from '@/components/input'
 import { SelectCategoryInput } from '@/components/selectCategory'
 import { DailyRateInput } from '@/components/dailyRateInput'
+import { Button } from '@/components/button'
 
 interface IUpdateCarInformationModal {
   isOpen: boolean
@@ -35,15 +36,15 @@ export function UpdateCarInformationModal({
           className="bg-gray-100 p-4  relative transition-transform duration-100 transform-gpu rounded-lg"
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="w-full flex justify-end">
+          <div className="w-full flex justify-end ">
             <button
               onClick={onClose}
-              className="bg-red-600 rounded-full p-[1px] flex justify-center items-center "
+              className="bg-red-600 rounded-full p-[1px] flex justify-center items-center cursor-pointer"
             >
               <X size={15} fill="white" />
             </button>
           </div>
-          <div className="px-[6rem]">
+          <div className="px-[6rem] mt-5">
             <h2 className="text-lg">Editar informações do carro</h2>
             <div className="grid grid-cols-2 gap-5 mt-5">
               <div className="flex flex-col">
@@ -68,9 +69,13 @@ export function UpdateCarInformationModal({
                 />
               </div>
               <div className="flex flex-col col-span-2">
-                <label htmlFor="about">sobre</label>
-                <textarea className="bg-white resize-none rounded-lg p-2 h-[6rem]" />
+                <label htmlFor="about">Sobre</label>
+                <textarea className="bg-white resize-none rounded-lg p-2 h-[6rem] outline-gray-300" />
               </div>
+            </div>
+            <div className="w-full flex flex-row justify-center items-center gap-5 mt-10">
+              <Button text="Atualizar" />
+              <Button text="Cancelar" buttonStyle="RED" onClick={onClose} />
             </div>
           </div>
         </div>

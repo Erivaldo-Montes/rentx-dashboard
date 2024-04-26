@@ -16,7 +16,11 @@ const imagesCarArray = [
   'https://dicas.olx.com.br/wp-content/uploads/2023/06/Melhores-carros-fiat-2023-.jpg',
 ]
 
-export function CarImages() {
+interface CarImages {
+  imagesUrl: string[]
+}
+
+export function CarImages({ imagesUrl }: CarImages) {
   const [thumbsSwiper, setThumbsSwiper] = useState(null)
   useEffect(() => {
     console.log(thumbsSwiper)
@@ -33,7 +37,7 @@ export function CarImages() {
         }}
         className="h-[300px] w-full"
       >
-        {imagesCarArray.map((item, index) => {
+        {imagesUrl.map((item, index) => {
           return (
             <SwiperSlide key={index}>
               <div className="h-full w-full relative">

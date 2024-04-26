@@ -8,10 +8,11 @@ import Image from 'next/image'
 import { Loading } from '@/components/loading'
 import { toast } from 'react-toastify'
 import { useForm, Controller } from 'react-hook-form'
-import { date, z } from 'zod'
+import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { signIn, useSession } from 'next-auth/react'
+import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import { Button } from '@/components/button'
 
 const LoginSchema = z.object({
   email: z.string().email('Obrigatório').min(1, 'Obrigatório'),
@@ -96,7 +97,7 @@ export default function LoginPage() {
           Faça login para gerenciar seus carros de maneira fácil
         </p>
 
-        <div className="max-w-[23rem] w-full">
+        <div className="max-w-[23rem] w-full mb-10">
           <div className="flex flex-col mt-[5.625rem] w-full">
             <label htmlFor="email">Email</label>
             <input
@@ -136,11 +137,8 @@ export default function LoginPage() {
               </span>
             )}
           </div>
-          <LoginButton
-            isSubmitting={isSubmitting}
-            onClick={handleSubmit(onSubmit)}
-          />
         </div>
+        <Button isSubmitting={isSubmitting} text="Login" />
       </form>
     </div>
   )

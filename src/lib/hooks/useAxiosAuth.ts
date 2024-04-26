@@ -9,6 +9,8 @@ import {
 } from '@/storage/storage-config'
 import { AxiosError } from 'axios'
 import { signOutSession } from '@/app/action'
+import { signOut } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 
 type FailedQueue = {
   onSuccess: (token: string) => void
@@ -20,6 +22,7 @@ let failedRequestQueue: FailedQueue[] = []
 let isRefreshing = false
 
 export function useAxiosAuth() {
+  const route = useRouter()
   useEffect(() => {
     const requestIntercept = axiosAuth.interceptors.request.use((config) => {
       const token = localStorage.getItem(AUTH_TOKEN_STORAGE)
@@ -65,6 +68,7 @@ export function useAxiosAuth() {
                     request.onFailed(error)
                   })
                   await signOutSession()
+                  route.replace('/login')
                   console.log(error)
                 } finally {
                   isRefreshing = false

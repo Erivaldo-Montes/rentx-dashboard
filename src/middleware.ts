@@ -7,15 +7,15 @@ export default async function middleware(request: NextRequest) {
   const session = await auth()
   console.log('session-middlewerwe:', session)
   const loginURL = new URL('/login', request.url)
-  const dashboadURL = new URL('/dashboard/cars', request.url)
-  if (!session) {
+  const dashboardURL = new URL('/dashboard/cars', request.url)
+  if (session?.user === undefined) {
     if (request.nextUrl.pathname === '/login') {
       return NextResponse.next()
     }
     return NextResponse.redirect(loginURL)
   }
   if (request.nextUrl.pathname === '/login') {
-    return NextResponse.redirect(dashboadURL)
+    return NextResponse.redirect(dashboardURL)
   }
 }
 

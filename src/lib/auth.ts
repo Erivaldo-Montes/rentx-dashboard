@@ -2,6 +2,7 @@ import NextAuth from 'next-auth'
 import Credencial from 'next-auth/providers/credentials'
 import axios from './axios'
 import { z } from 'zod'
+
 export const {
   auth,
   signIn,
@@ -16,14 +17,14 @@ export const {
   providers: [
     Credencial({
       async authorize(credentials) {
-        const parserdCredentials = z
+        const parsedCredentials = z
           .object({
             email: z.string(),
             password: z.string(),
           })
           .safeParse(credentials)
 
-        if (parserdCredentials.success) {
+        if (parsedCredentials.success) {
           const { email, password } = credentials
           console.log(email, password)
           try {
