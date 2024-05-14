@@ -3,10 +3,11 @@
 import React, { useEffect, useState } from 'react'
 import NextImage from 'next/image'
 import { getSpecificationIcon } from '@/utils/getSpecificationIIcon'
+import { UpdateSpecification } from '@/components/updateSpecification'
+import { ISpecifications } from '@/@types/specification'
 
 interface SpecificationCardProps extends React.HTMLProps<HTMLDivElement> {
-  field: string
-  value: string
+  specification: ISpecifications
 }
 
 type Icon = {
@@ -15,27 +16,44 @@ type Icon = {
 }
 
 export function SpecificationCard({
-  field,
-  value,
+  specification,
   ...rest
 }: SpecificationCardProps) {
   const [icon, setIcon] = useState<Icon>({} as Icon)
+  const [isUpdateSpecificationModalOpen, setIsUpdateSpecificationModalOpen] =
+    useState(false)
+
   useEffect(() => {
-    const icons = getSpecificationIcon({ field })
+    const icons = getSpecificationIcon({ field: specification.name })
     setIcon(() => {
       return {
         src: icons.icon,
         alt: icons.name,
       }
     })
-  }, [field])
+  }, [])
   return (
     <div
-      className="bg-gray-200 p-5 flex justify-center items-center flex-col w-[10.25rem] h-[10.25rem]"
+      onClick={() => {
+        setIsUpdateSpecificationModalOpen(true)
+      }}
+      className="bg-gray-200 p-5 flex justify-center items-center flex-col w-[10.25rem] h-[10.25rem] cursor-pointer"
       {...rest}
     >
-      <NextImage width={100} height={100} src={icon?.src} alt={icon?.alt} />
-      <span className="mt-4">{value}</span>
+      <UpdateSpecification
+        onClose={() => setIsUpdateSpecificationModalOpen(false)}
+        isOpen={isUpdateSpecificationModalOpen}
+        specification={specification}
+      />
+
+      <NextImage
+        width={100}
+        height={100}
+        src={icon.src}
+        alt={icon.alt}
+        title={icon.alt}
+      />
+      <span className="mt-4">{specification.description}</span>
     </div>
   )
 }

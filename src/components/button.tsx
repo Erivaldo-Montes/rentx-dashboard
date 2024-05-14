@@ -19,7 +19,9 @@ export function Button({
       {...rest}
     >
       {isSubmitting ? (
-        <Loading />
+        <div
+          className={`w-6 h-6 rounded-full animate-spin border-2 border-solid border-gray-300 border-t-transparent`}
+        ></div>
       ) : (
         <p className="text-md text-center">{text}</p>
       )}

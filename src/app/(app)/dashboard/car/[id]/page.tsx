@@ -8,6 +8,8 @@ import { FieldCarInformation } from '@/components/fieldCar'
 import { SpecificationCard } from '@/components/specificationCard'
 import { UpdateCarInformationModal } from '@/components/updateCarInformationModal'
 import { useRouter } from 'next/navigation'
+import { toast } from 'react-toastify'
+import { Loading } from '@/components/loading'
 
 interface ICar {
   id: string
@@ -20,37 +22,53 @@ interface ICar {
   category_id: string
   images_urls: string[]
   created_at: string
-  Specifications: {
-    id: string
-    name: string
-    description: string
-    created_at: string
-    car_id: string
-  }[]
+}
+
+type IImages = string
+
+type ISpecifications = {
+  id: string
+  name: string
+  description: string
+  created_at: string
+  car_id: string
 }
 
 export default function CarDetails({ params }: { params: { id: string } }) {
   const [isUpdateCarInformationModalOpen, setIsUpdateCarInformationModalOpen] =
     useState<boolean>(false)
+
   const [isLoading, setIsLoading] = useState(true)
   const [car, setCar] = useState<ICar>({} as ICar)
+  const [specification, setSpecification] = useState<ISpecifications[]>([])
+  const [images, setImages] = useState<IImages[]>([])
   const axiosAuth = useAxiosAuth()
   const navigation = useRouter()
 
   function handleBack() {
     navigation.back()
   }
-  console.log(car)
 
   useEffect(() => {
     setIsLoading(true)
-    async function getCarInformation() {
-      const response = await axiosAuth.get(`/car/${params.id}`)
-      setCar(response.data)
-    }
 
-    getCarInformation()
-    setIsLoading(false)
+    async function getCarInformation() {
+      try {
+        const response = await axiosAuth.get(`/car/${params.id}`)
+        console.log('response', response.data)
+        setCar(() => {
+          return { ...response.data }
+        })
+        setSpecification(response.data.Specifications)
+        setImages(response.data.images_filenames)
+      } catch (error) {
+        toast.error('Não foi possível obter carro')
+      }
+    }
+    getCarInformation().then()
+    setInterval(() => {
+      setIsLoading(false)
+    }, 700)
   }, [])
   return (
     <>
@@ -63,7 +81,9 @@ export default function CarDetails({ params }: { params: { id: string } }) {
 
       <div className="bg-gray-100  flex-grow">
         {isLoading ? (
-          <h1>loag</h1>
+          <div className="w-screen h-screen flex justify-center items-center">
+            <Loading />
+          </div>
         ) : (
           <>
             <header className="w-full py-[2.5rem] px-[3.75rem]">
@@ -75,8 +95,8 @@ export default function CarDetails({ params }: { params: { id: string } }) {
             </header>
             <main className="max-md:px-[5rem] px-[10rem] ">
               <span className="text-lg">Informações do carro</span>
-              <div className="grid grid-cols-2 gap-5 max-lg:grid-cols-1">
-                <CarImages imagesUrl={car.images_urls} />
+              <div className="grid grid-cols-2 gap-5 mt-20 max-lg:grid-cols-1">
+                <CarImages carId={car.id} imageFilenames={images} />
 
                 <div className="bg-white  px-[2.5rem] py-[4rem] w-full drop-shadow-xl">
                   <button
@@ -105,15 +125,11 @@ export default function CarDetails({ params }: { params: { id: string } }) {
               <div className="flex flex-col items-center mt-[5.625rem]">
                 Especificações
                 <div className="grid grid-cols-3 gap-3 w-[37rem] max-sm:grid-cols-2 max-sm:w-[25rem]">
-                  {/* {car.Specifications.map((item: any) => {
-                return (
-                  <SpecificationCard
-                    field={item.name}
-                    value={item.description}
-                    key={item.id}
-                  />
-                )
-              })} */}
+                  {specification.map((item) => {
+                    return (
+                      <SpecificationCard specification={item} key={item.id} />
+                    )
+                  })}
                 </div>
               </div>
             </main>

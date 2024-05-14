@@ -91,6 +91,7 @@ export function useAxiosAuth() {
           }
         } else {
           if (error.response?.data.message) {
+            console.error(error.response)
             return Promise.reject(new AppError(error.response.data.message))
           } else {
             return Promise.reject(error)

@@ -5,6 +5,7 @@ import { CaretLeft, CaretRight, FolderNotchOpen } from '@phosphor-icons/react'
 import { toast } from 'react-toastify'
 import { useAxiosAuth } from '@/lib/hooks/useAxiosAuth'
 import { useRouter } from 'next/navigation'
+import { Loading } from './loading'
 
 interface CarsProps {
   id: string
@@ -61,7 +62,7 @@ export function CarList() {
     <>
       {isFetching ? (
         <div className="bg-white h-[30rem] flex justify-center items-center">
-          <CarLoading />
+          <Loading />
         </div>
       ) : (
         <div className="overflow-auto  h-[30rem] bg-white">
@@ -138,13 +139,5 @@ export function CarList() {
         )}
       </div>
     </>
-  )
-}
-
-function CarLoading() {
-  return (
-    <div
-      className={`w-6 h-6 rounded-full animate-spin border-2 border-solid border-indigo-600 border-t-transparent`}
-    ></div>
   )
 }

@@ -1,67 +1,147 @@
+'use client'
+
 import Image from 'next/image'
-import { Swiper, SwiperSlide } from 'swiper/react'
+import { Swiper, SwiperSlide, useSwiper } from 'swiper/react'
 import { Navigation, FreeMode, Thumbs } from 'swiper/modules'
+import { useDropzone } from 'react-dropzone'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/thumbs'
 import 'swiper/css/free-mode'
 import { useEffect, useState } from 'react'
 import { Plus, Trash } from '@phosphor-icons/react'
-
-const imagesCarArray = [
-  'https://imgd.aeplcdn.com/370x208/n/cw/ec/130591/fronx-exterior-right-front-three-quarter-109.jpeg?isig=0&q=80',
-  'https://nxboats.com.br/wp-content/uploads/2023/11/Lamborghini.jpg',
-  'https://dicas.olx.com.br/wp-content/uploads/2023/06/Melhores-carros-fiat-2023-.jpg',
-  'https://www.infomoney.com.br/wp-content/uploads/2022/11/main_webp_comprar-haval-h6_38eb3e1db2.jpg-e1690562379379.jpg?fit=848%2C496&quality=50&strip=all',
-  'https://dicas.olx.com.br/wp-content/uploads/2023/06/Melhores-carros-fiat-2023-.jpg',
-]
+import { useAxiosAuth } from '@/lib/hooks/useAxiosAuth'
+import { AppError } from '@/utils/appError'
+import { toast } from 'react-toastify'
+import { useRouter } from 'next/navigation'
+import { ConfirmationDialog } from '@/components/confirmationDialog'
+import { PhotoSvg } from '@/components/icons/photo'
 
 interface CarImages {
-  imagesUrl: string[]
+  imageFilenames: string[]
+  carId: string
 }
 
-export function CarImages({ imagesUrl }: CarImages) {
+export function CarImages({ imageFilenames, carId }: CarImages) {
+  const [removeImageDialogIsOpen, setRemoveImageDialogIsOpen] = useState(false)
   const [thumbsSwiper, setThumbsSwiper] = useState(null)
-  useEffect(() => {
-    console.log(thumbsSwiper)
-  }, [thumbsSwiper])
+  const [imageToRemove, setImageToRemove] = useState<string>(imageFilenames[0])
+
+  const swiper = useSwiper()
+  const navigation = useRouter()
+  const axiosAuth = useAxiosAuth()
+
+  const { getRootProps } = useDropzone({
+    accept: {
+      'image/*': [],
+    },
+    onDrop: async (acceptedFiles) => {
+      const files = acceptedFiles.map((file) => {
+        Object.assign(file, {
+          preview: URL.createObjectURL(file),
+        })
+
+        return file
+      })
+      try {
+        await axiosAuth.post(`/car/images/${carId}`, files, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+
+        console.log(files)
+
+        toast.success('Imagem enviada com sucesso')
+        window.location.reload()
+      } catch (error) {
+        const isAppError = error instanceof AppError
+        const title = isAppError ? error.message : 'Não foi possivel criar'
+        toast.error(title)
+      }
+    },
+  })
+
+  async function handleRemoveImage() {
+    try {
+      console.log(imageToRemove)
+      await axiosAuth.post(`/car/image/${imageToRemove}`, {
+        car_id: carId,
+      })
+
+      toast.success('Imagem removida')
+      window.location.reload()
+    } catch (error) {
+      console.error(error)
+      const isAppError = error instanceof AppError
+      const title = isAppError
+        ? error.message
+        : 'Não foi possível remover imagem'
+      toast.error(title)
+    }
+  }
+
   return (
     <div className="max-w-[600px] max-lg:w-full">
-      <Swiper
-        modules={[Navigation, FreeMode, Thumbs]}
-        slidesPerView={1}
-        navigation={true}
-        loop={true}
-        thumbs={{
-          swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null,
+      <ConfirmationDialog
+        isOpen={removeImageDialogIsOpen}
+        onClose={() => {
+          setRemoveImageDialogIsOpen(false)
         }}
-        className="h-[300px] w-full"
-      >
-        {imagesUrl.map((item, index) => {
-          return (
-            <SwiperSlide key={index}>
-              <div className="h-full w-full relative">
-                <Image
-                  src={item}
-                  fill
-                  alt="car image"
-                  className="block object-contain"
-                />
-              </div>
-            </SwiperSlide>
-          )
-        })}
-      </Swiper>
-      <span className="w-full flex justify-center px-5 mt-2 gap-2">
-        <div
-          className="h-10 w-10 bg-red-600 flex justify-center items-center rounded-lg"
-          title="Remover imagem"
-        >
-          <Trash size={20} className="" color="#ffffff" />
+        title="Deseja remover a image?"
+        actionFunction={handleRemoveImage}
+      />
+      {imageFilenames.length === 0 ? (
+        <div className="flex justify-center items-center">
+          <PhotoSvg width={300} height={300} />
         </div>
+      ) : (
+        <Swiper
+          modules={[Navigation, FreeMode, Thumbs]}
+          slidesPerView={1}
+          navigation={true}
+          onSlideChange={(e) => {
+            console.log(e.activeIndex)
+            setImageToRemove(imageFilenames[e.activeIndex])
+          }}
+          thumbs={{
+            swiper:
+              thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null,
+          }}
+          className="h-[300px] w-full"
+        >
+          {imageFilenames.map((item, index) => {
+            return (
+              <SwiperSlide key={index}>
+                <div className="h-full w-full relative">
+                  <Image
+                    src={`http://0.0.0.0:3333/car/image/${item}`}
+                    fill
+                    alt="car image"
+                    className="block object-contain"
+                  />
+                </div>
+              </SwiperSlide>
+            )
+          })}
+        </Swiper>
+      )}
+
+      <span className="w-full flex justify-center px-5 mt-2 gap-2">
+        {imageFilenames.length !== 0 && (
+          <div
+            className="h-10 w-10 bg-red-600 flex justify-center items-center rounded-lg cursor-pointer"
+            title="Remover imagem"
+            onClick={() => setRemoveImageDialogIsOpen(true)}
+          >
+            <Trash size={20} className="" color="#ffffff" />
+          </div>
+        )}
+
         <div
           className="h-10 w-10 bg-blue-400 flex justify-center items-center rounded-lg"
           title="adicionar imagem"
+          {...getRootProps()}
         >
           <Plus size={20} color="#ffffff" />
         </div>
@@ -76,12 +156,12 @@ export function CarImages({ imagesUrl }: CarImages) {
           modules={[FreeMode, Navigation, Thumbs]}
           className="thumbs mt-3 h-32 w-full rounded-lg "
         >
-          {imagesCarArray.map((item, index) => {
+          {imageFilenames.map((item, index) => {
             return (
               <SwiperSlide key={index}>
                 <div className="flex h-full w-full items-center justify-center cursor-pointer">
                   <Image
-                    src={item}
+                    src={`http://0.0.0.0:3333/car/image/${item}`}
                     height={100}
                     width={100}
                     alt="car image"
