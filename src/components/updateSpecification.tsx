@@ -15,7 +15,7 @@ interface IUpdateSpecificationProps {
 }
 
 const updateSpecificationSchema = z.object({
-  specificationToUpdate: z.coerce.number().gt(1, 'Insira os dados'),
+  specificationToUpdate: z.string().min(1, 'Insira os dados'),
 })
 
 type UpdateSpecificationDataSchema = z.infer<typeof updateSpecificationSchema>
@@ -67,20 +67,25 @@ export function UpdateSpecification({
   specification,
   isOpen,
 }: IUpdateSpecificationProps) {
-  const measurementUnits = ['km/h', 's', 'HP']
+  const measurementUnits = ['km/h', ' s', 'HP']
   const regex = new RegExp(measurementUnits.join('|'), 'g')
   const specificationNamesWithoutMeasurementUnits =
     specification.description.replace(regex, '')
   const {
     handleSubmit,
     control,
+    register,
+    watch,
     formState: { isSubmitting, errors },
   } = useForm<UpdateSpecificationDataSchema>({
     resolver: zodResolver(updateSpecificationSchema),
     defaultValues: {
-      specificationToUpdate: Number(specificationNamesWithoutMeasurementUnits),
+      specificationToUpdate: String(specificationNamesWithoutMeasurementUnits),
     },
   })
+
+  const selectValue = watch('specificationToUpdate')
+  console.log(selectValue)
 
   const axiosAuth = useAxiosAuth()
 
@@ -109,7 +114,7 @@ export function UpdateSpecification({
   async function handleUpdateSpecification(
     data: UpdateSpecificationDataSchema,
   ) {
-    await axiosAuth.patch(`/car/specification/${specification.car_id}`, {
+    await axiosAuth.patch(`/car/specification/${specification.id}`, {
       name: specification.name,
       description: formatSpecification(
         specification.name,
@@ -151,57 +156,58 @@ export function UpdateSpecification({
           <div className="mt-5 ">
             {updateSpecificationQuestion[specification.name].question}
           </div>
-          {specification.name === 'fuel' || specification.name === 'gearbox' ? (
-            <Controller
-              control={control}
-              name="specificationToUpdate"
-              render={({ field: { onBlur, onChange } }) => (
-                <select
-                  defaultValue={specification.description}
-                  className="mt-5 bg-white w-full p-2 rounded-lg outline-gray-300 "
-                  onChange={onChange}
-                  onBlur={onBlur}
-                >
-                  {updateSpecificationQuestion[specification.name].select.map(
-                    (item) => (
-                      <option value={item.value} key={item.text}>
-                        {item.text}
-                      </option>
-                    ),
-                  )}
-                </select>
-              )}
-            />
-          ) : (
-            <Controller
-              control={control}
-              name="specificationToUpdate"
-              render={({ field: { onBlur, onChange, value } }) => (
-                <div className="mt-5">
-                  <Input
-                    errorMessage={errors.specificationToUpdate}
-                    value={value}
-                    onChange={onChange}
-                    onBlur={onBlur}
-                  />
-                  {errors.specificationToUpdate && (
-                    <div className="text-red-600 text-sm">
-                      {errors.specificationToUpdate.message}
-                    </div>
-                  )}
-                </div>
-              )}
-            />
-          )}
-          <div className="flex flex-row gap-2 mt-5">
-            <Button
-              text="Atualizar"
-              buttonStyle="GREEN"
-              isSubmitting={isSubmitting}
-              onClick={handleSubmit(handleUpdateSpecification)}
-            />
-            <Button text="Cancelar" buttonStyle="RED" onClick={onClose} />
-          </div>
+          <form
+            action=""
+            onSubmit={handleSubmit(handleUpdateSpecification)}
+            className="flex flex-col justify-center items-center"
+          >
+            {specification.name === 'fuel' ||
+            specification.name === 'gearbox' ? (
+              <select
+                defaultValue={specification.description}
+                className="mt-5 bg-white w-full p-2 rounded-lg outline-gray-300 "
+                {...register('specificationToUpdate')}
+              >
+                {updateSpecificationQuestion[specification.name].select.map(
+                  (item) => (
+                    <option value={item.value} key={item.text}>
+                      {item.text}
+                    </option>
+                  ),
+                )}
+              </select>
+            ) : (
+              <Controller
+                control={control}
+                name="specificationToUpdate"
+                render={({ field: { onBlur, onChange, value } }) => (
+                  <div className="mt-5">
+                    <Input
+                      errorMessage={errors.specificationToUpdate}
+                      value={value}
+                      onChange={onChange}
+                      onBlur={onBlur}
+                    />
+                    {errors.specificationToUpdate && (
+                      <div className="text-red-600 text-sm">
+                        {errors.specificationToUpdate.message}
+                      </div>
+                    )}
+                  </div>
+                )}
+              />
+            )}
+            <div className="flex flex-row gap-2 mt-5">
+              <Button
+                text="Atualizar"
+                buttonStyle="GREEN"
+                isSubmitting={isSubmitting}
+                disabled={isSubmitting}
+                type="submit"
+              />
+              <Button text="Cancelar" buttonStyle="RED" onClick={onClose} />
+            </div>
+          </form>
         </div>
       </div>
     </>

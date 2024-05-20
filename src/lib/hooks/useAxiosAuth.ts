@@ -24,70 +24,62 @@ let isRefreshing = false
 export function useAxiosAuth() {
   const route = useRouter()
   useEffect(() => {
-    const requestIntercept = axiosAuth.interceptors.request.use((config) => {
-      const token = localStorage.getItem(AUTH_TOKEN_STORAGE)
-      if (!config.headers.Authorization) {
-        config.headers['Authorization'] = `Bearer ${token}`
-      }
-      return config
-    })
-
     const responseInterceptor = axiosAuth.interceptors.response.use(
       (response) => response,
-      async (error: AxiosError) => {
+      (error: AxiosError) => {
         if (error.response?.status === 401) {
           if (error.response?.data?.message === 'Unauthorized') {
             // atualizar token
             const originalConfig = error.config
-            if (originalConfig) {
-              if (!isRefreshing) {
-                isRefreshing = true
-                try {
-                  const refreshToken =
-                    localStorage.getItem(AUTH_REFRESH_STORAGE)
-                  const tokenResponse = await axios.post('/refresh-token', {
-                    refresh_token: refreshToken,
-                  })
+            const refreshToken = localStorage.getItem(AUTH_REFRESH_STORAGE)
 
-                  localStorage.setItem(
-                    AUTH_TOKEN_STORAGE,
-                    tokenResponse.data.token,
-                  )
+            if (!isRefreshing) {
+              isRefreshing = true
+              axios
+                .post('/refresh-token', {
+                  refresh_token: refreshToken,
+                })
+                .then((response) => {
+                  localStorage.setItem(AUTH_TOKEN_STORAGE, response.data.token)
 
-                  originalConfig.headers.Authorization =
-                    tokenResponse.data.token
+                  originalConfig.headers.Authorization = response.data.token
+                  axiosAuth.defaults.headers['Authorization'] =
+                    `Bearer ${response.data.token}`
 
                   failedRequestQueue.forEach((request) => {
-                    request.onSuccess(tokenResponse.data.token)
+                    request.onSuccess(response.data.token)
                   })
 
                   failedRequestQueue = []
-                } catch (error) {
+                })
+                .catch((error) => {
                   localStorage.clear()
                   failedRequestQueue.forEach((request) => {
                     request.onFailed(error)
                   })
-                  await signOutSession()
+                  failedRequestQueue = []
+                  signOutSession().then()
                   route.replace('/login')
                   console.log(error)
-                } finally {
-                  isRefreshing = false
-                }
-              }
-
-              return new Promise((resolve, reject) => {
-                failedRequestQueue.push({
-                  onSuccess: (token: string) => {
-                    // eslint-disable-next-line dot-notation
-                    originalConfig.headers['Authorization'] = `Bearer ${token}`
-                    resolve(axiosAuth(originalConfig))
-                  },
-                  onFailed: (error) => {
-                    reject(error)
-                  },
                 })
-              })
+                .finally(() => {
+                  isRefreshing = false
+                })
             }
+
+            return new Promise((resolve, reject) => {
+              failedRequestQueue.push({
+                onSuccess: (token: string) => {
+                  // eslint-disable-next-line dot-notation
+                  originalConfig.headers['Authorization'] = `Bearer ${token}`
+                  console.log('resolve')
+                  resolve(axiosAuth(originalConfig))
+                },
+                onFailed: (error) => {
+                  reject(error)
+                },
+              })
+            })
           }
         } else {
           if (error.response?.data.message) {
@@ -102,7 +94,6 @@ export function useAxiosAuth() {
 
     return () => {
       axiosAuth.interceptors.response.eject(responseInterceptor)
-      axiosAuth.interceptors.request.eject(requestIntercept)
     }
   }, [])
 

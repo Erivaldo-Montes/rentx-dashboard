@@ -1,19 +1,18 @@
 'use client'
 
 import Image from 'next/image'
-import { Swiper, SwiperSlide, useSwiper } from 'swiper/react'
+import { Swiper, SwiperSlide } from 'swiper/react'
 import { Navigation, FreeMode, Thumbs } from 'swiper/modules'
 import { useDropzone } from 'react-dropzone'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/thumbs'
 import 'swiper/css/free-mode'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Plus, Trash } from '@phosphor-icons/react'
 import { useAxiosAuth } from '@/lib/hooks/useAxiosAuth'
 import { AppError } from '@/utils/appError'
 import { toast } from 'react-toastify'
-import { useRouter } from 'next/navigation'
 import { ConfirmationDialog } from '@/components/confirmationDialog'
 import { PhotoSvg } from '@/components/icons/photo'
 
@@ -27,8 +26,6 @@ export function CarImages({ imageFilenames, carId }: CarImages) {
   const [thumbsSwiper, setThumbsSwiper] = useState(null)
   const [imageToRemove, setImageToRemove] = useState<string>(imageFilenames[0])
 
-  const swiper = useSwiper()
-  const navigation = useRouter()
   const axiosAuth = useAxiosAuth()
 
   const { getRootProps } = useDropzone({

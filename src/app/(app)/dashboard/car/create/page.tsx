@@ -127,7 +127,7 @@ export default function CreateCar() {
 
         specifications.forEach((specification) => {
           axiosAuth
-            .patch(`/car/specification/${responseCar.data.id}`, {
+            .post(`/car/specification/${responseCar.data.id}`, {
               name: specification,
               description: formattedSpecification.find(
                 (item) => item[specification],

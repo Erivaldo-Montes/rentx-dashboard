@@ -10,7 +10,7 @@ import { UpdateCarInformationModal } from '@/components/updateCarInformationModa
 import { useRouter } from 'next/navigation'
 import { toast } from 'react-toastify'
 import { Loading } from '@/components/loading'
-
+import { ISpecifications } from '@/@types/specification'
 interface ICar {
   id: string
   name: string
@@ -26,14 +26,6 @@ interface ICar {
 
 type IImages = string
 
-type ISpecifications = {
-  id: string
-  name: string
-  description: string
-  created_at: string
-  car_id: string
-}
-
 export default function CarDetails({ params }: { params: { id: string } }) {
   const [isUpdateCarInformationModalOpen, setIsUpdateCarInformationModalOpen] =
     useState<boolean>(false)
@@ -44,6 +36,12 @@ export default function CarDetails({ params }: { params: { id: string } }) {
   const [images, setImages] = useState<IImages[]>([])
   const axiosAuth = useAxiosAuth()
   const navigation = useRouter()
+
+  const orderedSpecification = [...specification].sort((a, b) => {
+    if (a.name < b.name) return -1
+    if (a.name > b.name) return 1
+    return 0
+  })
 
   function handleBack() {
     navigation.back()
@@ -125,11 +123,13 @@ export default function CarDetails({ params }: { params: { id: string } }) {
               <div className="flex flex-col items-center mt-[5.625rem]">
                 Especificações
                 <div className="grid grid-cols-3 gap-3 w-[37rem] max-sm:grid-cols-2 max-sm:w-[25rem]">
-                  {specification.map((item) => {
-                    return (
-                      <SpecificationCard specification={item} key={item.id} />
-                    )
-                  })}
+                  {orderedSpecification
+                    .map((item) => {
+                      return (
+                        <SpecificationCard specification={item} key={item.id} />
+                      )
+                    })
+                    .sort()}
                 </div>
               </div>
             </main>
