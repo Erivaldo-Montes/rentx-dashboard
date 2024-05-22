@@ -5,6 +5,7 @@ import NextImage from 'next/image'
 import { getSpecificationIcon } from '@/utils/getSpecificationIIcon'
 import { UpdateSpecification } from '@/components/updateSpecification'
 import { ISpecifications } from '@/@types/specification'
+import { formatSpecification } from '@/utils/formatSpecification'
 
 interface SpecificationCardProps extends React.HTMLProps<HTMLDivElement> {
   specification: ISpecifications
@@ -23,6 +24,18 @@ export function SpecificationCard({
   const [isUpdateSpecificationModalOpen, setIsUpdateSpecificationModalOpen] =
     useState(false)
 
+  function formatedDescription(item: ISpecifications) {
+    switch (item.name) {
+      case 'fuel':
+        return ''
+
+        break
+
+      default:
+        break
+    }
+  }
+
   useEffect(() => {
     const icons = getSpecificationIcon({ field: specification.name })
     setIcon(() => {
@@ -37,7 +50,7 @@ export function SpecificationCard({
       onClick={() => {
         setIsUpdateSpecificationModalOpen(true)
       }}
-      className="bg-gray-200 p-5 flex justify-center items-center flex-col w-[10.25rem] h-[10.25rem] cursor-pointer"
+      className="bg-gray-200 p-5 flex justify-center items-center flex-col w-[10.25rem]  h-[10.25rem] cursor-pointer"
       {...rest}
     >
       <UpdateSpecification
@@ -50,10 +63,15 @@ export function SpecificationCard({
         width={100}
         height={100}
         src={icon.src}
-        alt={icon.alt}
+        alt="specifications"
         title={icon.alt}
       />
-      <span className="mt-4">{specification.description}</span>
+      <span className="mt-4">
+        {formatSpecification({
+          name: specification.name,
+          description: specification.description,
+        })}
+      </span>
     </div>
   )
 }

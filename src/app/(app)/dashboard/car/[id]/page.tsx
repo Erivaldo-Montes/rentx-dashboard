@@ -77,21 +77,21 @@ export default function CarDetails({ params }: { params: { id: string } }) {
         isOpen={isUpdateCarInformationModalOpen}
       />
 
-      <div className="bg-gray-100  flex-grow">
+      <div className="bg-gray-100 h-screen">
         {isLoading ? (
           <div className="w-screen h-screen flex justify-center items-center">
             <Loading />
           </div>
         ) : (
           <>
-            <header className="w-full py-[2.5rem] px-[3.75rem]">
+            <header className="w-full py-[2.5rem] px-[3.75rem] max-md:px-[1rem]">
               <ArrowLeft
                 size={20}
                 onClick={handleBack}
                 className="cursor-pointer"
               />
             </header>
-            <main className="max-md:px-[5rem] px-[10rem] ">
+            <main className="max-md:px-[1rem] px-[10rem] ">
               <span className="text-lg">Informações do carro</span>
               <div className="grid grid-cols-2 gap-5 mt-20 max-lg:grid-cols-1">
                 <CarImages carId={car.id} imageFilenames={images} />
@@ -122,14 +122,12 @@ export default function CarDetails({ params }: { params: { id: string } }) {
               </div>
               <div className="flex flex-col items-center mt-[5.625rem]">
                 Especificações
-                <div className="grid grid-cols-3 gap-3 w-[37rem] max-sm:grid-cols-2 max-sm:w-[25rem]">
-                  {orderedSpecification
-                    .map((item) => {
-                      return (
-                        <SpecificationCard specification={item} key={item.id} />
-                      )
-                    })
-                    .sort()}
+                <div className="grid grid-cols-3 gap-3 w-[37rem] max-sm:grid-cols-2 max-sm:w-[25rem] mt-10">
+                  {orderedSpecification.map((item) => {
+                    return (
+                      <SpecificationCard specification={item} key={item.id} />
+                    )
+                  })}
                 </div>
               </div>
             </main>

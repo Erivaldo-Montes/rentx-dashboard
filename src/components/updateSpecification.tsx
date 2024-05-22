@@ -84,9 +84,6 @@ export function UpdateSpecification({
     },
   })
 
-  const selectValue = watch('specificationToUpdate')
-  console.log(selectValue)
-
   const axiosAuth = useAxiosAuth()
 
   function formatSpecification(
@@ -183,6 +180,7 @@ export function UpdateSpecification({
                 render={({ field: { onBlur, onChange, value } }) => (
                   <div className="mt-5">
                     <Input
+                      type="number"
                       errorMessage={errors.specificationToUpdate}
                       value={value}
                       onChange={onChange}
