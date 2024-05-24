@@ -1,4 +1,4 @@
-export enum FetchType {
+export enum ListType {
   cars = 'CARS',
   users = 'USERS',
 }

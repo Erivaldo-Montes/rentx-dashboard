@@ -7,7 +7,7 @@ import { useAxiosAuth } from '@/lib/hooks/useAxiosAuth'
 import { useRouter } from 'next/navigation'
 import { Loading } from './loading'
 import { useList } from '@/lib/hooks/useList'
-import { FetchType } from '@/@types/list'
+import { ListType } from '@/@types/list'
 
 interface CarsProps {
   id: string
@@ -18,7 +18,7 @@ interface CarsProps {
 }
 
 interface ListProps {
-  type: FetchType
+  type: ListType
   columns: string[]
 }
 
