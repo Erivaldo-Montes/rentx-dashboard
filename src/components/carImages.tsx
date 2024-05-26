@@ -10,7 +10,7 @@ import 'swiper/css/thumbs'
 import 'swiper/css/free-mode'
 import { useState } from 'react'
 import { Plus, Trash } from '@phosphor-icons/react'
-import { useAxiosAuth } from '@/lib/hooks/useAxiosAuth'
+import { api } from '@/lib/axios'
 import { AppError } from '@/utils/appError'
 import { toast } from 'react-toastify'
 import { ConfirmationDialog } from '@/components/confirmationDialog'
@@ -26,8 +26,6 @@ export function CarImages({ imageFilenames, carId }: CarImages) {
   const [thumbsSwiper, setThumbsSwiper] = useState(null)
   const [imageToRemove, setImageToRemove] = useState<string>(imageFilenames[0])
 
-  const axiosAuth = useAxiosAuth()
-
   const { getRootProps } = useDropzone({
     accept: {
       'image/*': [],
@@ -41,7 +39,7 @@ export function CarImages({ imageFilenames, carId }: CarImages) {
         return file
       })
       try {
-        await axiosAuth.post(`/car/images/${carId}`, files, {
+        await api.post(`/car/images/${carId}`, files, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
@@ -62,7 +60,7 @@ export function CarImages({ imageFilenames, carId }: CarImages) {
   async function handleRemoveImage() {
     try {
       console.log(imageToRemove)
-      await axiosAuth.post(`/car/image/${imageToRemove}`, {
+      await api.post(`/car/image/${imageToRemove}`, {
         car_id: carId,
       })
 

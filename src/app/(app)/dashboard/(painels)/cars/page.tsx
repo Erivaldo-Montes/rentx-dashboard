@@ -1,7 +1,6 @@
 'use client'
 import { Header } from '@/components/header'
 import { Plus, MagnifyingGlass } from '@phosphor-icons/react'
-import { CarList } from '@/components/carsList'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import {
@@ -9,12 +8,12 @@ import {
   AUTH_TOKEN_STORAGE,
 } from '@/storage/storage-config'
 import { useEffect } from 'react'
+import { List } from '@/components/list'
 
 export default function Cars() {
   const { data } = useSession()
   const refreshToken = localStorage.getItem(AUTH_REFRESH_STORAGE)
   useEffect(() => {
-    console.log('asas', data?.user)
     if (!refreshToken && data) {
       localStorage.setItem(AUTH_TOKEN_STORAGE, data?.user.accessToken)
       localStorage.setItem(AUTH_REFRESH_STORAGE, data?.user.refreshToken)
@@ -45,14 +44,11 @@ export default function Cars() {
           </div>
         </div>
         <p className="text-sm mt-[2rem]">Lista de carros</p>
-        <div className="bg-gray-300 flex rounded-t-lg w-full justify-between ">
-          <div className="text-center p-2 w-40 ">Nome</div>
-          <div className="text-center p-2  w-40">Marca</div>
-          <div className="text-center p-2 w-40"> Diária</div>
-          <div className="text-center p-2 w-40">Placa</div>
-          <div className="text-center rounded-tr-lg p-2 w-40">Disponível</div>
-        </div>
-        <CarList />
+        <List
+          columns={['nome', 'Marca', 'Diária', 'Placa']}
+          fieldsOrder={['name', 'brand', 'daily_rate', 'license_plate']}
+          type="cars"
+        />
       </main>
     </div>
   )

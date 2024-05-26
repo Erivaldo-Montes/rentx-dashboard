@@ -4,16 +4,33 @@ import { Input } from '@/components/input'
 import { SelectCategoryInput } from '@/components/selectCategory'
 import { DailyRateInput } from '@/components/dailyRateInput'
 import { Button } from '@/components/button'
+import { z } from 'zod'
+import { useForm, Controller } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
 
 interface IUpdateCarInformationModal {
   isOpen: boolean
   onClose: () => void
 }
 
+const updateCarInformationSchema = z.object({
+  name: z.string(),
+  brand: z.string(),
+  category: z.string(),
+  daily_rate: z.string(),
+  about: z.string(),
+})
+
+type updateCarInformationDataSchema = z.infer<typeof updateCarInformationSchema>
+
 export function UpdateCarInformationModal({
   isOpen,
   onClose,
 }: IUpdateCarInformationModal) {
+  const { control } = useForm<updateCarInformationDataSchema>({
+    resolver: zodResolver(updateCarInformationSchema),
+  })
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -49,23 +66,61 @@ export function UpdateCarInformationModal({
             <div className="grid grid-cols-2 gap-5 mt-5">
               <div className="flex flex-col">
                 <label htmlFor="name">Nome</label>
-                <Input name="name" errorMessage={null} />
+                <Controller
+                  control={control}
+                  name="name"
+                  render={({ field: { value, onChange } }) => (
+                    <Input
+                      name="name"
+                      errorMessage={null}
+                      value={value}
+                      onChange={onChange}
+                    />
+                  )}
+                />
               </div>
               <div className="flex flex-col">
                 <label htmlFor="brand">Marca</label>
-                <Input errorMessage={null} name="brand" />
+                <Controller
+                  control={control}
+                  name="brand"
+                  render={({ field: { value, onChange } }) => (
+                    <Input
+                      name="brand"
+                      errorMessage={null}
+                      value={value}
+                      onChange={onChange}
+                    />
+                  )}
+                />
               </div>
               <div className="flex flex-col">
                 <label htmlFor="category">Categoria</label>
-                <SelectCategoryInput errorMessage={''} name="category" />
+                <Controller
+                  control={control}
+                  name="category"
+                  render={({ field: { value, onChange } }) => (
+                    <SelectCategoryInput
+                      errorMessage={''}
+                      name="category"
+                      value={value}
+                      onChange={onChange}
+                    />
+                  )}
+                />
               </div>
               <div className="flex flex-col">
-                <label htmlFor="">Diaria</label>
-                <DailyRateInput
-                  change={() => {
-                    return null
-                  }}
-                  errorMessage=""
+                <label htmlFor="">Diária</label>
+                <Controller
+                  control={control}
+                  name="name"
+                  render={({ field: { value, onChange } }) => (
+                    <DailyRateInput
+                      change={onChange}
+                      errorMessage=""
+                      value={value}
+                    />
+                  )}
                 />
               </div>
               <div className="flex flex-col col-span-2">

@@ -3,9 +3,9 @@
 import { useEffect, useState } from 'react'
 import { CaretLeft, CaretRight, FolderNotchOpen } from '@phosphor-icons/react'
 import { toast } from 'react-toastify'
-import { useAxiosAuth } from '@/lib/hooks/useAxiosAuth'
 import { useRouter } from 'next/navigation'
 import { Loading } from './loading'
+import { api } from '@/lib/axios'
 
 interface CarsProps {
   id: string
@@ -20,7 +20,6 @@ export function CarList() {
   const [cars, setCars] = useState([] as CarsProps[])
   const [isFetching, setIsFetching] = useState(true)
   const [nextPageCars, setNextPageCars] = useState([] as CarsProps[])
-  const axiosAuth = useAxiosAuth()
   const router = useRouter()
 
   function handleClick(id: string) {
@@ -39,11 +38,11 @@ export function CarList() {
     async function getCars() {
       try {
         setIsFetching(true)
-        const carsList = await axiosAuth.get(`/car/list?page=${currentPage}`)
+        const carsList = await api.get(`/car/list?page=${currentPage}`)
 
         setCars(carsList.data.cars)
 
-        const carsListNextPage = await axiosAuth.get(
+        const carsListNextPage = await api.get(
           `/car/list?page=${currentPage + 1}`,
         )
 

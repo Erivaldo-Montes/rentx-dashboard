@@ -1,13 +1,12 @@
 'use client'
 
-import { useAxiosAuth } from '@/lib/hooks/useAxiosAuth'
+import { api } from '@/lib/axios'
 
 import { useState } from 'react'
 
 export default function Settings() {
-  const axiosAuth = useAxiosAuth()
   const [categories, setCategories] = useState([])
-  axiosAuth
+  api
     .get('/category')
     .then((response) => setCategories(response.data.categories))
   return (

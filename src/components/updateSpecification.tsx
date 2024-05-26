@@ -2,11 +2,12 @@ import { Button } from '@/components/button'
 import { X } from '@phosphor-icons/react'
 import { useEffect, useState } from 'react'
 import { Input } from '@/components/input'
-import { ISpecifications } from '@/@types/specification'
-import { useAxiosAuth } from '@/lib/hooks/useAxiosAuth'
+import { ISpecifications } from '@/utils/types/specification'
+import { api } from '@/lib/axios'
 import { z } from 'zod'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { specificationSelectOptions } from '@/utils/constants/selectOptions'
 
 interface IUpdateSpecificationProps {
   onClose: () => void
@@ -23,43 +24,21 @@ type UpdateSpecificationDataSchema = z.infer<typeof updateSpecificationSchema>
 const updateSpecificationQuestion = {
   gearbox: {
     question: 'Selecione um mode de câmbio',
-    select: [
-      { value: 'manual', text: 'manual' },
-      { value: 'automatic', text: 'automático' },
-    ],
   },
   acceleration: {
     question: 'Define o tempo de aceleração',
-    select: [],
   },
   people: {
     question: 'Define o capacidade pessoas no carro',
-    select: [],
   },
   fuel: {
     question: 'Selecione o tipo de combústivel',
-    select: [
-      {
-        value: 'eletric',
-        text: 'elétrico',
-      },
-      {
-        value: 'gasoline',
-        text: 'gasolina',
-      },
-      {
-        value: 'diesel',
-        text: 'disel',
-      },
-    ],
   },
   power: {
     question: 'Define a força do motor em HP(cavalos):',
-    select: [],
   },
   speed: {
     question: 'Define a velocicade maxíma',
-    select: [],
   },
 }
 export function UpdateSpecification({
@@ -71,11 +50,11 @@ export function UpdateSpecification({
   const regex = new RegExp(measurementUnits.join('|'), 'g')
   const specificationNamesWithoutMeasurementUnits =
     specification.description.replace(regex, '')
+
   const {
     handleSubmit,
     control,
     register,
-    watch,
     formState: { isSubmitting, errors },
   } = useForm<UpdateSpecificationDataSchema>({
     resolver: zodResolver(updateSpecificationSchema),
@@ -83,8 +62,6 @@ export function UpdateSpecification({
       specificationToUpdate: String(specificationNamesWithoutMeasurementUnits),
     },
   })
-
-  const axiosAuth = useAxiosAuth()
 
   function formatSpecification(
     name: ISpecifications['name'],
@@ -111,7 +88,7 @@ export function UpdateSpecification({
   async function handleUpdateSpecification(
     data: UpdateSpecificationDataSchema,
   ) {
-    await axiosAuth.patch(`/car/specification/${specification.id}`, {
+    await api.patch(`/car/specification/${specification.id}`, {
       name: specification.name,
       description: formatSpecification(
         specification.name,
@@ -121,6 +98,7 @@ export function UpdateSpecification({
 
     window.location.reload()
   }
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -165,7 +143,7 @@ export function UpdateSpecification({
                 className="mt-5 bg-white w-full p-2 rounded-lg outline-gray-300 "
                 {...register('specificationToUpdate')}
               >
-                {updateSpecificationQuestion[specification.name].select.map(
+                {specificationSelectOptions[specification.name].options.map(
                   (item) => (
                     <option value={item.value} key={item.text}>
                       {item.text}

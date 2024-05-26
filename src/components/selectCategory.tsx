@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useAxiosAuth } from '@/lib/hooks/useAxiosAuth'
+import { api } from '@/lib/axios'
 
 type Category = {
   id: string
@@ -17,14 +17,13 @@ export function SelectCategoryInput({
   ...rest
 }: CategorySelectProps) {
   const [categories, setCategories] = useState<Category[]>([])
-  const axiosAuth = useAxiosAuth()
   async function getCategories() {
     try {
-      const response = await axiosAuth.get(`/category`)
+      const response = await api.get(`/category`)
 
       const data = response.data
 
-      setCategories(data.categories)
+      setCategories(data)
     } catch (error) {
       console.log(error)
     }

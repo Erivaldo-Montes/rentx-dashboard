@@ -3,11 +3,10 @@
 import { useEffect, useState } from 'react'
 import { CaretLeft, CaretRight, FolderNotchOpen } from '@phosphor-icons/react'
 import { toast } from 'react-toastify'
-import { useAxiosAuth } from '@/lib/hooks/useAxiosAuth'
 import { useRouter } from 'next/navigation'
 import { Loading } from './loading'
 import { useList } from '@/lib/hooks/useList'
-import { ListType } from '@/@types/list'
+import { ListType } from '@/utils/types/list'
 
 interface CarsProps {
   id: string
@@ -18,22 +17,24 @@ interface CarsProps {
 }
 
 interface ListProps {
-  type: ListType
+  type: keyof typeof ListType
   columns: string[]
+  fieldsOrder: string[]
 }
 
-export function List({ type, columns }: ListProps) {
+export function List({ type, columns, fieldsOrder }: ListProps) {
   const [currentPage, setCurrentPage] = useState(1)
-  const [items, setItems] = useState([] as CarsProps[])
+  const [items, setItems] = useState<any[]>([])
   const [isFetching, setIsFetching] = useState(true)
   const [nextPageItems, setNextPageItems] = useState([] as CarsProps[])
 
-  const { getLinkFetchItems, getLinkForDetails } = useList()
-  const axiosAuth = useAxiosAuth()
+  const { getLinkForDetails, fetchItems, getLinkFetchItems, organizeFields } =
+    useList()
   const router = useRouter()
 
   function handleClick(id: string) {
-    router.push(getLinkForDetails({ type, id }))
+    const link = getLinkForDetails({ id, type })
+    router.push(link)
   }
 
   function nextPage() {
@@ -48,17 +49,13 @@ export function List({ type, columns }: ListProps) {
     async function getCars() {
       try {
         setIsFetching(true)
-        const carsList = await axiosAuth.get(
-          getLinkFetchItems({ type, page: currentPage }),
-        )
+        const itemsList = await fetchItems('cars', currentPage)
 
-        setItems(carsList.data.cars)
+        setItems(itemsList)
 
-        const carsListNextPage = await axiosAuth.get(
-          getLinkFetchItems({ type, page: currentPage + 1 }),
-        )
+        const itemsListNextPage = await fetchItems(type, currentPage + 1)
 
-        setNextPageItems(carsListNextPage.data.cars)
+        setNextPageItems(itemsListNextPage)
       } catch (error) {
         toast.error('server error')
       } finally {
@@ -99,15 +96,11 @@ export function List({ type, columns }: ListProps) {
                   className="border-b-[1px] w-full flex  p-2 justify-between  bg-white cursor-pointer"
                   onClick={() => handleClick(item.id)}
                 >
-                  <div className="text-center p-2 w-40">{item.name}</div>
-                  <div className="text-center p-2 w-40">{item.brand}</div>
-                  <div className="text-center p-2 w-40">
-                    R$ {item.daily_rate / 100}
-                  </div>
-                  <div className="text-center p-2 w-40">
-                    {item.license_plate}
-                  </div>
-                  <div className="text-center p-2 w-40">sim</div>
+                  {fieldsOrder.map((field, index) => (
+                    <div className="text-center p-2 w-40" key={field}>
+                      {item[field]}
+                    </div>
+                  ))}
                 </div>
               )
             })

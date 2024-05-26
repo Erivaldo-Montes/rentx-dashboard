@@ -13,10 +13,11 @@ import Image from 'next/image'
 import { v4 as uuidV4 } from 'uuid'
 import { AppError } from '@/utils/appError'
 import { toast } from 'react-toastify'
-import { useAxiosAuth } from '@/lib/hooks/useAxiosAuth'
+import { api } from '@/lib/axios'
 import { DailyRateInput } from '@/components/dailyRateInput'
 import { SelectCategoryInput } from '@/components/selectCategory'
 import { Button } from '@/components/button'
+import { specificationSelectOptions } from '@/utils/constants/selectOptions'
 
 const carSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
@@ -41,7 +42,6 @@ type SpecificationsSchema = Pick<
 >
 
 export default function CreateCar() {
-  const axiosAuth = useAxiosAuth()
   const [files, setFiles] = useState<any[]>([])
   const containerRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
@@ -93,7 +93,7 @@ export default function CreateCar() {
       const valueString = value.join('')
       data.daily_rate = valueString
       try {
-        const responseCar = await axiosAuth.post('/car', {
+        const responseCar = await api.post('/car', {
           name: data.name,
           brand: data.brand,
           about: data.about,
@@ -126,7 +126,7 @@ export default function CreateCar() {
           })
 
         specifications.forEach((specification) => {
-          axiosAuth
+          api
             .post(`/car/specification/${responseCar.data.id}`, {
               name: specification,
               description: formattedSpecification.find(
@@ -136,7 +136,7 @@ export default function CreateCar() {
             .then()
         })
 
-        await axiosAuth.post(`/car/images/${responseCar.data.id}`, files, {
+        await api.post(`/car/images/${responseCar.data.id}`, files, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
@@ -161,7 +161,6 @@ export default function CreateCar() {
   }
 
   useEffect(() => {
-    console.log(files)
     if (files.length < 3) {
       return
     }
@@ -327,8 +326,11 @@ export default function CreateCar() {
               className={`bg-white w-full p-2 rounded-lg outline-gray-300 ${errors.gearbox && 'border-red-600 border-2 outline-red-600'}`}
             >
               <option value="selecione">selecione</option>
-              <option value="manual">Manual</option>
-              <option value="auto">Automático</option>
+              {specificationSelectOptions.gearbox.options.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.text}
+                </option>
+              ))}
             </select>
             {errors.gearbox && (
               <span className="text-red-600 text-sm">
@@ -413,9 +415,11 @@ export default function CreateCar() {
               className={`bg-white w-full p-2 rounded-lg outline-gray-300 ${errors.gearbox && 'border-red-600 border-2 outline-red-600'}`}
             >
               <option value="selecione">selecione</option>
-              <option value="gasoline">Gasolina</option>
-              <option value="diesel">diesel</option>
-              <option value="electric">Elétrico</option>
+              {specificationSelectOptions.fuel.options.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.text}
+                </option>
+              ))}
             </select>
 
             {errors.fuel && (

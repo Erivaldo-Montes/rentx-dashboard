@@ -1,4 +1,5 @@
 import { Header } from '@/components/header'
+import { List } from '@/components/list'
 import { MagnifyingGlass } from '@phosphor-icons/react/dist/ssr'
 export default function Users() {
   return (
@@ -20,13 +21,10 @@ export default function Users() {
           </div>
         </div>
         <p className="text-sm mt-[2rem]">Lista de usuários</p>
-        <div className="bg-gray-300 flex rounded-t-lg w-full justify-between ">
-          <div className="text-center p-2 w-40 ">ID</div>
-          <div className="text-center p-2  w-40">Nome</div>
-          <div className="text-center p-2 w-40"> E-mail</div>
-          <div className="text-center p-2 w-40">CNH</div>
-          <div className="text-center rounded-tr-lg p-2 w-40">Role</div>
-        </div>
+        <List
+          columns={['id', 'nome', 'E-mail', 'CNH', 'acesso']}
+          type={'USERS'}
+        />
       </main>
     </div>
   )

@@ -1,27 +1,40 @@
-import { ListType } from '@/@types/list'
+import { api } from '@/lib/axios'
+import { ListType } from '@/utils/types/list'
 
 interface FetchItemProps {
-  type: ListType
+  type: keyof typeof ListType
   page: number
 }
 
 interface GetLinkForDetailsProps {
-  type: ListType
+  type: keyof typeof ListType
   id: string
 }
 
-const fieldOrder = {
-  USERS: ['name', 'brand', 'daily_rate', 'license_plate', 'available'],
-  CARS: ['id', 'name', 'e-mail', 'driver_license', 'role'],
-}
+const fetchListUrls = { cars: '/car/list?page=', users: '' }
 
 function list() {
+  async function fetchItems(
+    type: keyof typeof ListType,
+    page: number,
+  ): Promise<any[]> {
+    console.log('link', fetchListUrls[type])
+    const response = await api.get(fetchListUrls[type].concat(page.toString()))
+
+    const cars = response.data
+    console.log(cars)
+
+    return cars
+  }
+
   function getLinkFetchItems({ type, page }: FetchItemProps) {
     switch (type) {
       case ListType.cars:
         return `/car/list?page=${page}`
       case ListType.users:
         return ``
+      default:
+        return ''
     }
   }
 
@@ -31,35 +44,39 @@ function list() {
         return `/dashboard/car/${id}`
       case ListType.users:
         return ''
+
+      default:
+        return ''
     }
   }
 
   function organizeFields<T extends Record<string, any>>(
     item: T,
-    type: ListType,
+    fieldOrder: (keyof T)[],
   ): T {
-    const organizedField: Record<string, any> = {}
+    const organizedField: Partial<T> = {}
 
-    fieldOrder[type].forEach((field) => {
+    fieldOrder.forEach((field) => {
       if (Object.prototype.hasOwnProperty.call(item, field)) {
         organizedField[field] = item[field]
       }
     })
-    ;(Object.keys(item) as (typeof fieldOrder)[typeof type]).forEach(
-      (field) => {
-        if (!Object.prototype.hasOwnProperty.call(organizedField, field)) {
-          organizedField[field] = item[field]
-        }
-      },
-    )
+    console.log(organizedField)
+    ;(Object.keys(item) as (keyof T)[]).forEach((field) => {
+      if (!Object.prototype.hasOwnProperty.call(organizedField, field)) {
+        organizedField[field] = item[field]
+        console.log(organizedField)
+      }
+    })
 
     return organizedField as T
   }
 
   return {
-    getLinkFetchItems,
+    fetchItems,
     getLinkForDetails,
     organizeFields,
+    getLinkFetchItems,
   }
 }
 

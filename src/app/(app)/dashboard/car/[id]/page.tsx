@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useAxiosAuth } from '@/lib/hooks/useAxiosAuth'
+import { api } from '@/lib/axios'
 import { ArrowLeft } from '@phosphor-icons/react'
 import { CarImages } from '@/components/carImages'
 import { FieldCarInformation } from '@/components/fieldCar'
@@ -34,7 +34,7 @@ export default function CarDetails({ params }: { params: { id: string } }) {
   const [car, setCar] = useState<ICar>({} as ICar)
   const [specification, setSpecification] = useState<ISpecifications[]>([])
   const [images, setImages] = useState<IImages[]>([])
-  const axiosAuth = useAxiosAuth()
+
   const navigation = useRouter()
 
   const orderedSpecification = [...specification].sort((a, b) => {
@@ -52,7 +52,7 @@ export default function CarDetails({ params }: { params: { id: string } }) {
 
     async function getCarInformation() {
       try {
-        const response = await axiosAuth.get(`/car/${params.id}`)
+        const response = await api.get(`/car/${params.id}`)
         console.log('response', response.data)
         setCar(() => {
           return { ...response.data }
@@ -77,7 +77,7 @@ export default function CarDetails({ params }: { params: { id: string } }) {
         isOpen={isUpdateCarInformationModalOpen}
       />
 
-      <div className="bg-gray-100 h-screen">
+      <div className="bg-gray-100">
         {isLoading ? (
           <div className="w-screen h-screen flex justify-center items-center">
             <Loading />
@@ -91,7 +91,7 @@ export default function CarDetails({ params }: { params: { id: string } }) {
                 className="cursor-pointer"
               />
             </header>
-            <main className="max-md:px-[1rem] px-[10rem] ">
+            <main className="max-md:px-[1rem] px-[10rem] pb-10 ">
               <span className="text-lg">Informações do carro</span>
               <div className="grid grid-cols-2 gap-5 mt-20 max-lg:grid-cols-1">
                 <CarImages carId={car.id} imageFilenames={images} />

@@ -1,6 +1,6 @@
 import NextAuth from 'next-auth'
 import Credencial from 'next-auth/providers/credentials'
-import axios from './axios'
+import { api } from './axios'
 import { z } from 'zod'
 
 export const {
@@ -28,18 +28,36 @@ export const {
           const { email, password } = credentials
           console.log(email, password)
           try {
-            const response = await axios.post('/session', { email, password })
+            const response = await fetch('http://0.0.0.0:3333/session', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                email,
+                password,
+              }),
+            })
+
+            const tokens = await response.json()
+
+            console.log('response', tokens)
             if (response.status === 200) {
               // eslint-disable-next-line camelcase
-              const { token, refresh_token } = response.data
+              const { token, refresh_token } = tokens
 
-              const responseProfile = await axios('/me', {
-                headers: { Authorization: `Bearer ${response.data.token}` },
+              const responseProfile = await fetch('http://0.0.0.0:3333/me', {
+                method: 'GET',
+                headers: { Authorization: `Bearer ${tokens.token}` },
               })
 
-              if (responseProfile.data) {
+              const responseProfileJson = await responseProfile.json()
+
+              console.log(responseProfileJson)
+
+              if (responseProfileJson) {
                 const user = {
-                  ...responseProfile.data,
+                  ...responseProfileJson,
                   accessToken: token,
                   // eslint-disable-next-line camelcase
                   refreshToken: refresh_token,
@@ -49,6 +67,7 @@ export const {
               return 'null'
             }
           } catch (error) {
+            console.log(error)
             return null
           }
         }

@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react'
 import NextImage from 'next/image'
 import { getSpecificationIcon } from '@/utils/getSpecificationIIcon'
 import { UpdateSpecification } from '@/components/updateSpecification'
-import { ISpecifications } from '@/@types/specification'
+import { ISpecifications } from '@/utils/types/specification'
 import { formatSpecification } from '@/utils/formatSpecification'
 
 interface SpecificationCardProps extends React.HTMLProps<HTMLDivElement> {
