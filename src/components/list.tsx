@@ -28,8 +28,7 @@ export function List({ type, columns, fieldsOrder }: ListProps) {
   const [isFetching, setIsFetching] = useState(true)
   const [nextPageItems, setNextPageItems] = useState([] as CarsProps[])
 
-  const { getLinkForDetails, fetchItems, getLinkFetchItems, organizeFields } =
-    useList()
+  const { getLinkForDetails, fetchItems } = useList()
   const router = useRouter()
 
   function handleClick(id: string) {
@@ -96,7 +95,7 @@ export function List({ type, columns, fieldsOrder }: ListProps) {
                   className="border-b-[1px] w-full flex  p-2 justify-between  bg-white cursor-pointer"
                   onClick={() => handleClick(item.id)}
                 >
-                  {fieldsOrder.map((field, index) => (
+                  {fieldsOrder.map((field) => (
                     <div className="text-center p-2 w-40" key={field}>
                       {item[field]}
                     </div>

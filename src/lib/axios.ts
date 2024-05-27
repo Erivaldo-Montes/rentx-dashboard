@@ -1,5 +1,5 @@
 'use client'
-import axios, { AxiosError } from 'axios'
+import axios from 'axios'
 import { signOut } from 'next-auth/react'
 import { AppError } from '@/utils/appError'
 

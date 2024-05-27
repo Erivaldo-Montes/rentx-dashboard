@@ -10,19 +10,8 @@ import { UpdateCarInformationModal } from '@/components/updateCarInformationModa
 import { useRouter } from 'next/navigation'
 import { toast } from 'react-toastify'
 import { Loading } from '@/components/loading'
-import { ISpecifications } from '@/@types/specification'
-interface ICar {
-  id: string
-  name: string
-  brand: string
-  about: string
-  daily_rate: number
-  available: boolean
-  license_plate: string
-  category_id: string
-  images_urls: string[]
-  created_at: string
-}
+import { ISpecifications } from '@/utils/types/specification'
+import { ICar } from '@/utils/types/car'
 
 type IImages = string
 
@@ -67,7 +56,7 @@ export default function CarDetails({ params }: { params: { id: string } }) {
     setInterval(() => {
       setIsLoading(false)
     }, 700)
-  }, [])
+  }, [params.id])
   return (
     <>
       <UpdateCarInformationModal
@@ -75,6 +64,7 @@ export default function CarDetails({ params }: { params: { id: string } }) {
           setIsUpdateCarInformationModalOpen(false)
         }}
         isOpen={isUpdateCarInformationModalOpen}
+        carInformation={car}
       />
 
       <div className="bg-gray-100">

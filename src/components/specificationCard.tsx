@@ -24,18 +24,6 @@ export function SpecificationCard({
   const [isUpdateSpecificationModalOpen, setIsUpdateSpecificationModalOpen] =
     useState(false)
 
-  function formatedDescription(item: ISpecifications) {
-    switch (item.name) {
-      case 'fuel':
-        return ''
-
-        break
-
-      default:
-        break
-    }
-  }
-
   useEffect(() => {
     const icons = getSpecificationIcon({ field: specification.name })
     setIcon(() => {

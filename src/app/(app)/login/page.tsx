@@ -149,18 +149,6 @@ interface LoginButtonProps
   isSubmitting: boolean
 }
 
-function LoginButton({ isSubmitting, ...rest }: LoginButtonProps) {
-  return (
-    <button
-      type={'submit'}
-      className="mt-10 bg-green-600 p-2 flex items-center justify-center text-white rounded-lg w-full "
-      {...rest}
-    >
-      {isSubmitting ? <Loading color="white" /> : 'Log in'}
-    </button>
-  )
-}
-
 interface PasswordInputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
   errorMessage: string | undefined

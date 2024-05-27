@@ -1,6 +1,5 @@
 import NextAuth from 'next-auth'
 import Credencial from 'next-auth/providers/credentials'
-import { api } from './axios'
 import { z } from 'zod'
 
 export const {
@@ -87,7 +86,7 @@ export const {
       }
       return { ...token, ...session }
     },
-    async session({ session, token, user }) {
+    async session({ session, token }) {
       session.user = token.user as any
       return session
     },

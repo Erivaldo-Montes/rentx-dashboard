@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { X } from '@phosphor-icons/react'
 import { Input } from '@/components/input'
 import { SelectCategoryInput } from '@/components/selectCategory'
@@ -7,9 +7,11 @@ import { Button } from '@/components/button'
 import { z } from 'zod'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { ICar } from '@/utils/types/car'
 
 interface IUpdateCarInformationModal {
   isOpen: boolean
+  carInformation: ICar
   onClose: () => void
 }
 
@@ -26,10 +28,24 @@ type updateCarInformationDataSchema = z.infer<typeof updateCarInformationSchema>
 export function UpdateCarInformationModal({
   isOpen,
   onClose,
+  carInformation,
 }: IUpdateCarInformationModal) {
-  const { control } = useForm<updateCarInformationDataSchema>({
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<updateCarInformationDataSchema>({
     resolver: zodResolver(updateCarInformationSchema),
+    defaultValues: {
+      name: carInformation.name,
+      brand: carInformation.brand,
+      daily_rate: String(carInformation.daily_rate),
+      about: carInformation.about,
+    },
   })
+  async function handleUpdateCar(data: updateCarInformationDataSchema) {
+    console.log(data)
+  }
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -69,12 +85,11 @@ export function UpdateCarInformationModal({
                 <Controller
                   control={control}
                   name="name"
-                  render={({ field: { value, onChange } }) => (
+                  render={({ field }) => (
                     <Input
-                      name="name"
-                      errorMessage={null}
-                      value={value}
-                      onChange={onChange}
+                      errorMessage={errors.name?.message}
+                      {...field}
+                      defaultValue={carInformation.name}
                     />
                   )}
                 />
@@ -87,8 +102,8 @@ export function UpdateCarInformationModal({
                   render={({ field: { value, onChange } }) => (
                     <Input
                       name="brand"
-                      errorMessage={null}
-                      value={value}
+                      errorMessage={errors.brand?.message}
+                      defaultValue={carInformation.brand}
                       onChange={onChange}
                     />
                   )}
@@ -101,7 +116,7 @@ export function UpdateCarInformationModal({
                   name="category"
                   render={({ field: { value, onChange } }) => (
                     <SelectCategoryInput
-                      errorMessage={''}
+                      errorMessage={errors.category?.message}
                       name="category"
                       value={value}
                       onChange={onChange}
@@ -113,23 +128,29 @@ export function UpdateCarInformationModal({
                 <label htmlFor="">Diária</label>
                 <Controller
                   control={control}
-                  name="name"
-                  render={({ field: { value, onChange } }) => (
+                  name="daily_rate"
+                  render={({ field: { onChange } }) => (
                     <DailyRateInput
                       change={onChange}
-                      errorMessage=""
-                      value={value}
+                      defaultValue={carInformation.daily_rate}
+                      errorMessage={errors.daily_rate?.message}
                     />
                   )}
                 />
               </div>
               <div className="flex flex-col col-span-2">
                 <label htmlFor="about">Sobre</label>
-                <textarea className="bg-white resize-none rounded-lg p-2 h-[6rem] outline-gray-300" />
+                <textarea
+                  className="bg-white resize-none rounded-lg p-2 h-[6rem] outline-gray-300"
+                  defaultValue={carInformation.about}
+                />
               </div>
             </div>
             <div className="w-full flex flex-row justify-center items-center gap-5 mt-10">
-              <Button text="Atualizar" />
+              <Button
+                text="Atualizar"
+                onClick={handleSubmit(handleUpdateCar)}
+              />
               <Button text="Cancelar" buttonStyle="RED" onClick={onClose} />
             </div>
           </div>

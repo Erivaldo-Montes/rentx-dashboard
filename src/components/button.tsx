@@ -1,5 +1,3 @@
-import { Loading } from '@/components/loading'
-
 interface IButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   isSubmitting?: boolean
   buttonStyle?: 'GREEN' | 'RED'

@@ -1,6 +1,11 @@
-import { ISpecifications } from '@/@types/specification'
+import { ISpecifications } from '@/utils/types/specification'
 
 interface IformatSpecification {
+  name: ISpecifications['name']
+  description: string
+}
+
+interface IAddMeasurementUnit {
   name: ISpecifications['name']
   description: string
 }
@@ -17,7 +22,7 @@ export function formatSpecification({
       if (description === 'diesel') {
         return 'Disel'
       }
-      if (description === 'eletric') {
+      if (description === 'electric') {
         return 'Elétrico'
       }
       break
@@ -35,5 +40,27 @@ export function formatSpecification({
       break
     default:
       return description
+  }
+}
+
+export function addMeasurementUnits({
+  description,
+  name,
+}: IAddMeasurementUnit): Record<string, any> {
+  switch (name) {
+    case 'acceleration':
+      return {
+        [name]: description.concat(' s'),
+      }
+    case 'power':
+      return {
+        [name]: description.concat(' HP'),
+      }
+    case 'speed':
+      return {
+        [name]: description.concat(' km/h'),
+      }
+    default:
+      return { [name]: description }
   }
 }

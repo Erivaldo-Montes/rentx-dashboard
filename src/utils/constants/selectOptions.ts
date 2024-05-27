@@ -9,7 +9,7 @@ export const specificationSelectOptions = {
   fuel: {
     options: [
       {
-        value: 'eletric',
+        value: 'electric',
         text: 'elétrico',
       },
       {

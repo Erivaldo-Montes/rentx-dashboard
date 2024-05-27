@@ -6,7 +6,7 @@ import { ArrowLeft, Plus, Trash } from '@phosphor-icons/react/dist/ssr'
 import { useForm, Controller } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useState, ChangeEvent, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Input } from '@/components/input'
 import { useDropzone } from 'react-dropzone'
 import Image from 'next/image'
@@ -18,6 +18,7 @@ import { DailyRateInput } from '@/components/dailyRateInput'
 import { SelectCategoryInput } from '@/components/selectCategory'
 import { Button } from '@/components/button'
 import { specificationSelectOptions } from '@/utils/constants/selectOptions'
+import { addMeasurementUnits } from '@/utils/formatSpecification'
 
 const carSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
@@ -27,10 +28,10 @@ const carSchema = z.object({
   about: z.string(),
   speed: z.coerce.number().gt(1, 'Velecidade é obrigatório'),
   people: z.string().min(1, 'Números de pessoas é obrigatório'),
-  gearbox: z.enum(['manual', 'auto']),
+  gearbox: z.string().min(1, 'Selecione o câmbio'),
   acceleration: z.coerce.number().min(1, 'Aceleração é obrigatório'),
   power: z.string().min(1, 'Força é obrigatório'),
-  fuel: z.enum(['gasoline', 'diesel', 'electric']),
+  fuel: z.string().min(1, 'selecione o combustível'),
   category: z.string().min(1, 'Obrigatório'),
 })
 
@@ -113,16 +114,10 @@ export default function CreateCar() {
 
         const formattedSpecification: Record<string, any>[] =
           specifications.map((item) => {
-            switch (item) {
-              case 'acceleration':
-                return { [item]: String(data['acceleration']).concat(' s') }
-              case 'power':
-                return { [item]: String(data['power']).concat(' HP') }
-              case 'speed':
-                return { [item]: String(data['speed']).concat(' km/h') }
-              default:
-                return { [item]: String(data[item]) }
-            }
+            return addMeasurementUnits({
+              name: item,
+              description: String(data[item]),
+            })
           })
 
         specifications.forEach((specification) => {
@@ -131,7 +126,7 @@ export default function CreateCar() {
               name: specification,
               description: formattedSpecification.find(
                 (item) => item[specification],
-              )![specification],
+              )?.[specification],
             })
             .then()
         })
@@ -278,7 +273,7 @@ export default function CreateCar() {
             <Controller
               control={control}
               name="daily_rate"
-              render={({ field: { onChange, value, onBlur } }) => (
+              render={({ field: { onChange, onBlur } }) => (
                 <DailyRateInput
                   change={onChange}
                   onBlur={onBlur}
@@ -345,7 +340,7 @@ export default function CreateCar() {
             <Controller
               control={control}
               name="speed"
-              render={({ field: { onChange, onBlur, value } }) => (
+              render={({ field: { onChange, onBlur } }) => (
                 <Input
                   errorMessage={errors.speed}
                   type="number"
@@ -414,7 +409,7 @@ export default function CreateCar() {
               {...register('fuel')}
               className={`bg-white w-full p-2 rounded-lg outline-gray-300 ${errors.gearbox && 'border-red-600 border-2 outline-red-600'}`}
             >
-              <option value="selecione">selecione</option>
+              <option value={''}>selecione</option>
               {specificationSelectOptions.fuel.options.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.text}

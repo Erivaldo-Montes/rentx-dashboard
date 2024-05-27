@@ -1,6 +1,6 @@
 import { Button } from '@/components/button'
 import { X } from '@phosphor-icons/react'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { Input } from '@/components/input'
 import { ISpecifications } from '@/utils/types/specification'
 import { api } from '@/lib/axios'
@@ -8,6 +8,7 @@ import { z } from 'zod'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { specificationSelectOptions } from '@/utils/constants/selectOptions'
+import { addMeasurementUnits } from '@/utils/formatSpecification'
 
 interface IUpdateSpecificationProps {
   onClose: () => void
@@ -63,37 +64,15 @@ export function UpdateSpecification({
     },
   })
 
-  function formatSpecification(
-    name: ISpecifications['name'],
-    value: string,
-  ): Record<string, any> {
-    switch (name) {
-      case 'acceleration':
-        return {
-          [name]: value.concat(' s'),
-        }
-      case 'power':
-        return {
-          [name]: value.concat(' HP'),
-        }
-      case 'speed':
-        return {
-          [name]: value.concat(' km/h'),
-        }
-      default:
-        return { [name]: value }
-    }
-  }
-
   async function handleUpdateSpecification(
     data: UpdateSpecificationDataSchema,
   ) {
     await api.patch(`/car/specification/${specification.id}`, {
       name: specification.name,
-      description: formatSpecification(
-        specification.name,
-        String(data.specificationToUpdate),
-      )[specification.name],
+      description: addMeasurementUnits({
+        name: specification.name,
+        description: String(data.specificationToUpdate),
+      })[specification.name],
     })
 
     window.location.reload()
