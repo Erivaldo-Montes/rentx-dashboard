@@ -8,6 +8,7 @@ import { z } from 'zod'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ICar } from '@/utils/types/car'
+import { FormErrorMessage } from '@/components/formErrorMessage'
 
 interface IUpdateCarInformationModal {
   isOpen: boolean
@@ -20,7 +21,7 @@ const updateCarInformationSchema = z.object({
   brand: z.string(),
   category: z.string(),
   daily_rate: z.string(),
-  about: z.string(),
+  about: z.string().nullable(),
 })
 
 type updateCarInformationDataSchema = z.infer<typeof updateCarInformationSchema>
@@ -33,18 +34,17 @@ export function UpdateCarInformationModal({
   const {
     control,
     handleSubmit,
-    formState: { errors },
+    register,
+    formState: { errors, isSubmitting },
   } = useForm<updateCarInformationDataSchema>({
     resolver: zodResolver(updateCarInformationSchema),
-    defaultValues: {
-      name: carInformation.name,
-      brand: carInformation.brand,
-      daily_rate: String(carInformation.daily_rate),
-      about: carInformation.about,
-    },
+    defaultValues: {},
   })
   async function handleUpdateCar(data: updateCarInformationDataSchema) {
-    console.log(data)
+    console.log('data', data)
+  }
+  if (errors) {
+    console.log(errors)
   }
 
   useEffect(() => {
@@ -85,13 +85,14 @@ export function UpdateCarInformationModal({
                 <Controller
                   control={control}
                   name="name"
+                  defaultValue={carInformation.name}
                   render={({ field }) => (
-                    <Input
-                      errorMessage={errors.name?.message}
-                      {...field}
-                      defaultValue={carInformation.name}
-                    />
+                    <Input errorMessage={errors.name?.message} {...field} />
                   )}
+                />
+                <FormErrorMessage
+                  isShow={!!errors.name?.message}
+                  message={errors.name?.message}
                 />
               </div>
               <div className="flex flex-col">
@@ -99,14 +100,19 @@ export function UpdateCarInformationModal({
                 <Controller
                   control={control}
                   name="brand"
+                  defaultValue={carInformation.brand}
                   render={({ field: { value, onChange } }) => (
                     <Input
                       name="brand"
+                      value={value}
                       errorMessage={errors.brand?.message}
-                      defaultValue={carInformation.brand}
                       onChange={onChange}
                     />
                   )}
+                />
+                <FormErrorMessage
+                  isShow={!!errors.brand?.message}
+                  message={errors.brand?.message}
                 />
               </div>
               <div className="flex flex-col">
@@ -123,32 +129,44 @@ export function UpdateCarInformationModal({
                     />
                   )}
                 />
+                <FormErrorMessage
+                  isShow={!!errors.name?.message}
+                  message={'selecione uma categoria'}
+                />
               </div>
               <div className="flex flex-col">
                 <label htmlFor="">Diária</label>
                 <Controller
                   control={control}
                   name="daily_rate"
+                  defaultValue={String(carInformation.daily_rate / 100)}
                   render={({ field: { onChange } }) => (
                     <DailyRateInput
                       change={onChange}
-                      defaultValue={carInformation.daily_rate}
+                      defaultValue={String(carInformation.daily_rate / 100)}
                       errorMessage={errors.daily_rate?.message}
                     />
                   )}
                 />
+                <FormErrorMessage
+                  isShow={!!errors.daily_rate?.message}
+                  message={errors.daily_rate?.message}
+                />
               </div>
               <div className="flex flex-col col-span-2">
                 <label htmlFor="about">Sobre</label>
+
                 <textarea
                   className="bg-white resize-none rounded-lg p-2 h-[6rem] outline-gray-300"
                   defaultValue={carInformation.about}
+                  {...register('about')}
                 />
               </div>
             </div>
             <div className="w-full flex flex-row justify-center items-center gap-5 mt-10">
               <Button
                 text="Atualizar"
+                isSubmitting={isSubmitting}
                 onClick={handleSubmit(handleUpdateCar)}
               />
               <Button text="Cancelar" buttonStyle="RED" onClick={onClose} />
