@@ -12,6 +12,7 @@ import { toast } from 'react-toastify'
 import { Loading } from '@/components/loading'
 import { ISpecifications } from '@/utils/types/specification'
 import { ICar } from '@/utils/types/car'
+import { ICategory } from '@/utils/types/category'
 
 type IImages = string
 
@@ -21,6 +22,7 @@ export default function CarDetails({ params }: { params: { id: string } }) {
 
   const [isLoading, setIsLoading] = useState(true)
   const [car, setCar] = useState<ICar>({} as ICar)
+  const [category, setCategory] = useState<ICategory>({} as ICategory)
   const [specification, setSpecification] = useState<ISpecifications[]>([])
   const [images, setImages] = useState<IImages[]>([])
 
@@ -41,13 +43,18 @@ export default function CarDetails({ params }: { params: { id: string } }) {
 
     async function getCarInformation() {
       try {
-        const response = await api.get(`/car/${params.id}`)
-        console.log('response', response.data)
+        const carResponse = await api.get(`/car/${params.id}`)
         setCar(() => {
-          return { ...response.data }
+          return { ...carResponse.data }
         })
-        setSpecification(response.data.Specifications)
-        setImages(response.data.images_filenames)
+        setSpecification(carResponse.data.Specifications)
+        setImages(carResponse.data.images_filenames)
+
+        const categoryResponse = await api.get(
+          `/category/${carResponse.data.category_id}`,
+        )
+
+        setCategory(categoryResponse.data)
       } catch (error) {
         toast.error('Não foi possível obter carro')
       }
@@ -104,9 +111,11 @@ export default function CarDetails({ params }: { params: { id: string } }) {
                     value={'obter categoria'}
                   />
 
-                  <div className="mt-5">
+                  <div className="mt-5 ">
                     <p className="text-gray-500 text-base">{'sobre'}</p>
-                    <p className="text-sm ">{car.about}</p>
+                    <div className="text-sm max-h-[100px] overflow-y-auto">
+                      {car.about}
+                    </div>
                   </div>
                 </div>
               </div>

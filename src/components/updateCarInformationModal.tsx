@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { X } from '@phosphor-icons/react'
 import { Input } from '@/components/input'
 import { SelectCategoryInput } from '@/components/selectCategory'
@@ -9,6 +9,9 @@ import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ICar } from '@/utils/types/car'
 import { FormErrorMessage } from '@/components/formErrorMessage'
+import { api } from '@/lib/axios'
+import { toast } from 'react-toastify'
+import { ICategory } from '@/utils/types/category'
 
 interface IUpdateCarInformationModal {
   isOpen: boolean
@@ -19,7 +22,7 @@ interface IUpdateCarInformationModal {
 const updateCarInformationSchema = z.object({
   name: z.string(),
   brand: z.string(),
-  category: z.string(),
+  category_id: z.string(),
   daily_rate: z.string(),
   about: z.string().nullable(),
 })
@@ -38,10 +41,26 @@ export function UpdateCarInformationModal({
     formState: { errors, isSubmitting },
   } = useForm<updateCarInformationDataSchema>({
     resolver: zodResolver(updateCarInformationSchema),
-    defaultValues: {},
+    defaultValues: {
+      category_id: carInformation.id,
+    },
   })
   async function handleUpdateCar(data: updateCarInformationDataSchema) {
-    console.log('data', data)
+    try {
+      const value = data.daily_rate.match(/\d+/g)
+      const dailyRateString = value?.join('')
+
+      const body = { ...data, daily_rate: Number(dailyRateString) }
+
+      console.log(body)
+
+      await api.patch(`/car/${carInformation.id}`, { ...body })
+
+      window.location.reload()
+    } catch (error) {
+      console.error(error)
+      toast.error('Não foi possível atualizar o carro')
+    }
   }
   if (errors) {
     console.log(errors)
@@ -119,13 +138,13 @@ export function UpdateCarInformationModal({
                 <label htmlFor="category">Categoria</label>
                 <Controller
                   control={control}
-                  name="category"
+                  name="category_id"
+                  defaultValue={carInformation.category_id}
                   render={({ field: { value, onChange } }) => (
                     <SelectCategoryInput
-                      errorMessage={errors.category?.message}
-                      name="category"
-                      value={value}
+                      errorMessage={errors.category_id?.message}
                       onChange={onChange}
+                      value={value}
                     />
                   )}
                 />
@@ -139,11 +158,11 @@ export function UpdateCarInformationModal({
                 <Controller
                   control={control}
                   name="daily_rate"
-                  defaultValue={String(carInformation.daily_rate / 100)}
+                  defaultValue={String(carInformation.daily_rate)}
                   render={({ field: { onChange } }) => (
                     <DailyRateInput
                       change={onChange}
-                      defaultValue={String(carInformation.daily_rate / 100)}
+                      defaultValue={String(carInformation.daily_rate)}
                       errorMessage={errors.daily_rate?.message}
                     />
                   )}

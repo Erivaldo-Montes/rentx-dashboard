@@ -13,6 +13,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/button'
+import { FormErrorMessage } from '@/components/formErrorMessage'
 
 const LoginSchema = z.object({
   email: z.string().email('Obrigatório').min(1, 'Obrigatório'),
@@ -107,12 +108,10 @@ export default function LoginPage() {
               {...register('email')}
             />
 
-            {errors.email && (
-              <span className="flex flex-row gap-2 w-full items-center mt-2">
-                <Warning size={20} color="#E11D48" weight="fill" />
-                {errors.email.message}
-              </span>
-            )}
+            <FormErrorMessage
+              isShow={!!errors.email}
+              message={errors.email?.message}
+            />
           </div>
 
           <div className="flex flex-col mt-[2rem] w-full">
@@ -130,12 +129,10 @@ export default function LoginPage() {
               )}
             />
 
-            {errors.password && (
-              <span className="flex flex-row gap-2 w-full items-center mt-2">
-                <Warning size={20} color="#E11D48" weight="fill" />
-                {errors.password.message}
-              </span>
-            )}
+            <FormErrorMessage
+              isShow={!!errors.password}
+              message={errors.password?.message}
+            />
           </div>
         </div>
         <Button isSubmitting={isSubmitting} text="Login" />

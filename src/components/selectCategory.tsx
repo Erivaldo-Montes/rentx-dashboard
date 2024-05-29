@@ -34,11 +34,9 @@ export function SelectCategoryInput({
   }, [])
   return (
     <select
-      defaultValue={''}
       {...rest}
       className={`bg-white w-full p-2 rounded-lg outline-gray-300 ${errorMessage && 'border-red-600 border-2 outline-red-600'}`}
     >
-      <option value={''}>Selecione</option>
       {categories.map((item) => {
         return (
           <option value={item.id} key={item.id}>

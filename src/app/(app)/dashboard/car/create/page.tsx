@@ -19,6 +19,8 @@ import { SelectCategoryInput } from '@/components/selectCategory'
 import { Button } from '@/components/button'
 import { specificationSelectOptions } from '@/utils/constants/selectOptions'
 import { addMeasurementUnits } from '@/utils/formatSpecification'
+import { FormErrorMessage } from '@/components/formErrorMessage'
+import { formatNumberToUS } from '@/utils/formatNumberToUS'
 
 const carSchema = z.object({
   name: z.string().min(1, 'Nome é obrigatório'),
@@ -88,11 +90,14 @@ export default function CreateCar() {
   })
 
   async function handleCreateCar(data: CreateCarDataSchema) {
+    // convert daily rate in number
     const value = data.daily_rate.match(/\d+/g)
 
     if (value) {
       const valueString = value.join('')
+
       data.daily_rate = valueString
+      console.log('data daiky', data.daily_rate)
       try {
         const responseCar = await api.post('/car', {
           name: data.name,
@@ -211,11 +216,10 @@ export default function CreateCar() {
               )}
             />
 
-            {errors.name && (
-              <span className="text-red-600 text-sm">
-                {errors.name.message}
-              </span>
-            )}
+            <FormErrorMessage
+              isShow={!!errors.name}
+              message={errors.name?.message}
+            />
           </div>
 
           <div className="flex flex-col gap-2 col-span-2">
@@ -236,11 +240,10 @@ export default function CreateCar() {
               )}
             />
 
-            {errors.brand && (
-              <span className="text-red-600 text-sm">
-                {errors.brand.message}
-              </span>
-            )}
+            <FormErrorMessage
+              isShow={!!errors.brand}
+              message={errors.brand?.message}
+            />
           </div>
 
           <div className="flex flex-col gap-2 col-span-1 ">
@@ -258,11 +261,10 @@ export default function CreateCar() {
               )}
             />
 
-            {errors.category && (
-              <span className="text-red-600 text-sm">
-                Selecione uma categoria
-              </span>
-            )}
+            <FormErrorMessage
+              isShow={!!errors.category}
+              message={errors.category?.message}
+            />
           </div>
 
           <div className="flex flex-col gap-2 col-span-1 ">
@@ -282,11 +284,10 @@ export default function CreateCar() {
               )}
             />
 
-            {errors.daily_rate && (
-              <span className="text-red-600 text-sm">
-                {errors.daily_rate.message}
-              </span>
-            )}
+            <FormErrorMessage
+              isShow={!!errors.daily_rate}
+              message={errors.daily_rate?.message}
+            />
           </div>
 
           <div className="flex flex-col gap-2 col-span-2 ">
@@ -306,11 +307,10 @@ export default function CreateCar() {
               )}
             />
 
-            {errors.license_plate && (
-              <span className="text-red-600 text-sm">
-                {errors.license_plate.message}
-              </span>
-            )}
+            <FormErrorMessage
+              isShow={!!errors.license_plate}
+              message={errors.license_plate?.message}
+            />
           </div>
 
           <div className="flex flex-col gap-2 col-span-2 ">
@@ -327,11 +327,10 @@ export default function CreateCar() {
                 </option>
               ))}
             </select>
-            {errors.gearbox && (
-              <span className="text-red-600 text-sm">
-                Selecione um tipo de Câmbio
-              </span>
-            )}
+            <FormErrorMessage
+              isShow={!!errors.gearbox}
+              message={errors.gearbox?.message}
+            />
           </div>
 
           <div className="flex flex-col gap-2 col-span-1 ">
@@ -350,11 +349,10 @@ export default function CreateCar() {
               )}
             />
 
-            {errors.speed && (
-              <span className="text-red-600 text-sm">
-                {errors.speed.message}
-              </span>
-            )}
+            <FormErrorMessage
+              isShow={!!errors.speed}
+              message={errors.speed?.message}
+            />
           </div>
 
           <div className="flex flex-col gap-2 col-span-1 ">
@@ -372,11 +370,10 @@ export default function CreateCar() {
               )}
             />
 
-            {errors.people && (
-              <span className="text-red-600 text-sm">
-                {errors.people.message}
-              </span>
-            )}
+            <FormErrorMessage
+              isShow={!!errors.people}
+              message={errors.people?.message}
+            />
           </div>
 
           <div className="flex flex-col gap-2 col-span-2 ">
@@ -396,11 +393,10 @@ export default function CreateCar() {
               )}
             />
 
-            {errors.acceleration && (
-              <span className="text-red-600 text-sm">
-                {errors.acceleration.message}
-              </span>
-            )}
+            <FormErrorMessage
+              isShow={!!errors.acceleration}
+              message={errors.acceleration?.message}
+            />
           </div>
 
           <div className="flex flex-col gap-2 col-span-1 ">
@@ -417,11 +413,10 @@ export default function CreateCar() {
               ))}
             </select>
 
-            {errors.fuel && (
-              <span className="text-red-600 text-sm">
-                selecione o tipo de combustível
-              </span>
-            )}
+            <FormErrorMessage
+              isShow={!!errors.fuel}
+              message={errors.fuel?.message}
+            />
           </div>
 
           <div className="flex flex-col gap-2 col-span-1">
@@ -439,11 +434,10 @@ export default function CreateCar() {
               )}
             />
 
-            {errors.power && (
-              <span className="text-red-600 text-sm">
-                {errors.power.message}
-              </span>
-            )}
+            <FormErrorMessage
+              isShow={!!errors.power}
+              message={errors.power?.message}
+            />
           </div>
 
           <div className="flex flex-col gap-2 col-span-4">
@@ -454,11 +448,10 @@ export default function CreateCar() {
               className="rounded-lg p-2 h-[6.25rem] outline-gray-300 resize-none"
               {...register('about')}
             />
-            {errors.about && (
-              <span className="text-red-600 text-sm">
-                {errors.about.message}
-              </span>
-            )}
+            <FormErrorMessage
+              isShow={!!errors.about}
+              message={errors.about?.message}
+            />
           </div>
         </form>
 

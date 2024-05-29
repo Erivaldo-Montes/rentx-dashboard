@@ -9,6 +9,7 @@ import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { specificationSelectOptions } from '@/utils/constants/selectOptions'
 import { addMeasurementUnits } from '@/utils/formatSpecification'
+import { FormErrorMessage } from './formErrorMessage'
 
 interface IUpdateSpecificationProps {
   onClose: () => void
@@ -119,7 +120,7 @@ export function UpdateSpecification({
             specification.name === 'gearbox' ? (
               <select
                 defaultValue={specification.description}
-                className="mt-5 bg-white w-full p-2 rounded-lg outline-gray-300 "
+                className={`bg-white w-full p-2 rounded-lg outline-gray-300 ${errors.specificationToUpdate && 'border-red-600 border-2 outline-red-600'}`}
                 {...register('specificationToUpdate')}
               >
                 {specificationSelectOptions[specification.name].options.map(
@@ -143,11 +144,10 @@ export function UpdateSpecification({
                       onChange={onChange}
                       onBlur={onBlur}
                     />
-                    {errors.specificationToUpdate && (
-                      <div className="text-red-600 text-sm">
-                        {errors.specificationToUpdate.message}
-                      </div>
-                    )}
+                    <FormErrorMessage
+                      isShow={!!errors.specificationToUpdate}
+                      message={errors.specificationToUpdate?.message}
+                    />
                   </div>
                 )}
               />
