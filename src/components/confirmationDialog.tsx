@@ -46,7 +46,7 @@ export function ConfirmationDialog({
             </button>
           </div>
           <div className="mt-5 ">{title}</div>
-          <div className="flex flex-row gap-2 mt-5">
+          <div className="flex flex-row gap-2 mt-5 flex justify-center items-center">
             <Button
               text="Sim"
               buttonStyle="GREEN"
@@ -55,6 +55,9 @@ export function ConfirmationDialog({
                   actionFunction()
                 }
                 setIsLoading(true)
+                setTimeout(() => {
+                  setIsLoading(false)
+                }, 500)
               }}
               isSubmitting={isLoading}
             />

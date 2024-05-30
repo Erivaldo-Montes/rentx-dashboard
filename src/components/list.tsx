@@ -8,14 +8,6 @@ import { Loading } from './loading'
 import { useList } from '@/lib/hooks/useList'
 import { ListType } from '@/utils/types/list'
 
-interface CarsProps {
-  id: string
-  name: string
-  brand: string
-  daily_rate: number
-  license_plate: string
-}
-
 interface ListProps {
   type: keyof typeof ListType
   columns: string[]
@@ -26,7 +18,7 @@ export function List({ type, columns, fieldsOrder }: ListProps) {
   const [currentPage, setCurrentPage] = useState(1)
   const [items, setItems] = useState<any[]>([])
   const [isFetching, setIsFetching] = useState(true)
-  const [nextPageItems, setNextPageItems] = useState([] as CarsProps[])
+  const [nextPageItems, setNextPageItems] = useState([] as any[])
 
   const { getLinkForDetails, fetchItems } = useList()
   const router = useRouter()
@@ -48,7 +40,7 @@ export function List({ type, columns, fieldsOrder }: ListProps) {
     async function getCars() {
       try {
         setIsFetching(true)
-        const itemsList = await fetchItems('cars', currentPage)
+        const itemsList = await fetchItems(type, currentPage)
 
         setItems(itemsList)
 
@@ -92,7 +84,7 @@ export function List({ type, columns, fieldsOrder }: ListProps) {
               return (
                 <div
                   key={item.id}
-                  className="border-b-[1px] w-full flex  p-2 justify-between  bg-white cursor-pointer"
+                  className="border-b-[1px] w-full flex  p-2 justify-between  bg-white cursor-pointer hover:bg-gray-200"
                   onClick={() => handleClick(item.id)}
                 >
                   {fieldsOrder.map((field) => (

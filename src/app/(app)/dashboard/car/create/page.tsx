@@ -97,7 +97,6 @@ export default function CreateCar() {
       const valueString = value.join('')
 
       data.daily_rate = valueString
-      console.log('data daiky', data.daily_rate)
       try {
         const responseCar = await api.post('/car', {
           name: data.name,

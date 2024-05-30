@@ -8,9 +8,9 @@ import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/thumbs'
 import 'swiper/css/free-mode'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Plus, Trash } from '@phosphor-icons/react'
-import { api } from '@/lib/axios'
+import { api, baseURL } from '@/lib/axios'
 import { AppError } from '@/utils/appError'
 import { toast } from 'react-toastify'
 import { ConfirmationDialog } from '@/components/confirmationDialog'
@@ -45,8 +45,6 @@ export function CarImages({ imageFilenames, carId }: CarImages) {
           },
         })
 
-        console.log(files)
-
         toast.success('Imagem enviada com sucesso')
         window.location.reload()
       } catch (error) {
@@ -59,7 +57,6 @@ export function CarImages({ imageFilenames, carId }: CarImages) {
 
   async function handleRemoveImage() {
     try {
-      console.log(imageToRemove)
       await api.post(`/car/image/${imageToRemove}`, {
         car_id: carId,
       })
@@ -110,7 +107,7 @@ export function CarImages({ imageFilenames, carId }: CarImages) {
               <SwiperSlide key={index}>
                 <div className="h-full w-full relative">
                   <Image
-                    src={`http://0.0.0.0:3333/car/image/${item}`}
+                    src={`${baseURL}/car/image/${item}`}
                     fill
                     alt="car image"
                     className="block object-contain"
@@ -125,7 +122,7 @@ export function CarImages({ imageFilenames, carId }: CarImages) {
       <span className="w-full flex justify-center px-5 mt-2 gap-2">
         {imageFilenames.length !== 0 && (
           <div
-            className="h-10 w-10 bg-red-600 flex justify-center items-center rounded-lg cursor-pointer"
+            className="h-10 w-10 bg-red-600 flex justify-center items-center rounded-lg cursor-pointer hover:bg-red-500"
             title="Remover imagem"
             onClick={() => setRemoveImageDialogIsOpen(true)}
           >
@@ -134,7 +131,7 @@ export function CarImages({ imageFilenames, carId }: CarImages) {
         )}
 
         <div
-          className="h-10 w-10 bg-blue-400 flex justify-center items-center rounded-lg"
+          className="h-10 w-10 bg-blue-400 flex justify-center items-center rounded-lg hover:bg-blue-300 cursor-pointer"
           title="adicionar imagem"
           {...getRootProps()}
         >
@@ -156,7 +153,7 @@ export function CarImages({ imageFilenames, carId }: CarImages) {
               <SwiperSlide key={index}>
                 <div className="flex h-full w-full items-center justify-center cursor-pointer">
                   <Image
-                    src={`http://0.0.0.0:3333/car/image/${item}`}
+                    src={`${baseURL}/car/image/${item}`}
                     height={100}
                     width={100}
                     alt="car image"

@@ -38,7 +38,7 @@ export function SpecificationCard({
       onClick={() => {
         setIsUpdateSpecificationModalOpen(true)
       }}
-      className="bg-gray-200 p-5 flex justify-center items-center flex-col w-[10.25rem]  h-[10.25rem] cursor-pointer"
+      className="bg-gray-200 p-5 drop-shadow-lg  flex justify-center items-center flex-col w-[10.25rem]  h-[10.25rem] cursor-pointer hover:bg-gray-300"
       {...rest}
     >
       <UpdateSpecification

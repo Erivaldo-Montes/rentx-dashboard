@@ -1,5 +1,7 @@
 import { api } from '@/lib/axios'
+import { ICar } from '@/utils/types/car'
 import { ListType } from '@/utils/types/list'
+import { formatToCurrency } from '@/utils/formatToCurrency'
 
 interface FetchItemProps {
   type: keyof typeof ListType
@@ -18,11 +20,15 @@ function list() {
     type: keyof typeof ListType,
     page: number,
   ): Promise<any[]> {
-    console.log('link', fetchListUrls[type])
     const response = await api.get(fetchListUrls[type].concat(page.toString()))
 
-    const cars = response.data
-    console.log(cars)
+    let cars = response.data
+
+    if (type === 'cars') {
+      const carsFormatted = formatDailyRateToCurrency(response.data)
+      cars = carsFormatted
+      console.log('cars', carsFormatted)
+    }
 
     return cars
   }
@@ -55,13 +61,12 @@ function list() {
     fieldOrder: (keyof T)[],
   ): T {
     const organizedField: Partial<T> = {}
-
+    // organize fields order
     fieldOrder.forEach((field) => {
       if (Object.prototype.hasOwnProperty.call(item, field)) {
         organizedField[field] = item[field]
       }
     })
-    console.log(organizedField)
     ;(Object.keys(item) as (keyof T)[]).forEach((field) => {
       if (!Object.prototype.hasOwnProperty.call(organizedField, field)) {
         organizedField[field] = item[field]
@@ -72,10 +77,19 @@ function list() {
     return organizedField as T
   }
 
+  function formatDailyRateToCurrency(cars: ICar[]) {
+    const carFormatted = []
+    for (const car of cars) {
+      const dailyRateCurrency = formatToCurrency(car.daily_rate / 100)
+      carFormatted.push({ ...car, daily_rate: dailyRateCurrency })
+    }
+
+    return carFormatted
+  }
+
   return {
     fetchItems,
     getLinkForDetails,
-    organizeFields,
     getLinkFetchItems,
   }
 }
