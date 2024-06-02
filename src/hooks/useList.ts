@@ -27,7 +27,6 @@ function list() {
     if (type === 'cars') {
       const carsFormatted = formatDailyRateToCurrency(response.data)
       cars = carsFormatted
-      console.log('cars', carsFormatted)
     }
 
     return cars

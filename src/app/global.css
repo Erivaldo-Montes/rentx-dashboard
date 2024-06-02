@@ -24,3 +24,73 @@
 .thumbs .swiper-slide-thumb-active {
   opacity: 1;
 }
+
+/* chromium browsers */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* firefox browser */
+.no-scrollbar {
+  scrollbar-width: none; /* Firefox */
+}
+
+#checkbox {
+  /* checkbox is hidden*/
+  display: none
+}
+
+#icon-container {
+  cursor: pointer;
+  display:block;
+  height: 30px;
+  width: 30px;
+}
+
+/* common styles*/
+.icon-menu, .icon-menu::before, .icon-menu::after, .icon-close, .icon-close::before, .icon-close::after {
+  content: '';
+  display: block;
+  height: 2.7px;
+  position: absolute;
+  width: 28px;
+  border-radius: 20px;
+  transition: top ease 0.3s, transform ease 0.3s 0.3s, background 0.3s ease 0.3s;
+  background: #000;
+}
+
+
+/* bottom line of hamburger */
+.icon-menu::before {
+  top: -7px;
+  transition: background ease 0.3s,top ease 0.3s 0.3s, transform ease 0.3s;
+}
+
+/* top line of hamburger */
+.icon-menu::after {
+  top: 7px;
+  transition: background ease 0.3s,top ease 0.3s 0.3s, transform ease 0.3s;
+}
+
+.icon-close {
+  background: transparent;
+}
+
+/* line one of close icon */
+.icon-close::before {
+  transform: rotate(45deg);
+  top: 0px;
+  background: #000;
+}
+
+/* line two of close icon */
+.icon-close::after {
+  transform: rotate(-45deg);
+  top: 0px;
+  background: #000;
+}
+
+#icon {
+  top: 20;
+  transition: background ease 0.3s,top ease 0.3s 0.3s, transform ease 0.3s;
+}

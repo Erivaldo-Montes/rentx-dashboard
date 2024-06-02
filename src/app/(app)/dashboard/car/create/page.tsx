@@ -251,11 +251,12 @@ export default function CreateCar() {
             <Controller
               control={control}
               name="category"
-              render={({ field: { onBlur, onChange } }) => (
+              render={({ field: { onBlur, onChange, value } }) => (
                 <SelectCategoryInput
                   errorMessage={errors.category?.message}
                   onChange={onChange}
                   onBlur={onBlur}
+                  value={value}
                 />
               )}
             />

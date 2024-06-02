@@ -14,13 +14,13 @@ interface ListProps {
   fieldsOrder: string[]
 }
 
-export function List({ type, columns, fieldsOrder }: ListProps) {
+export function TableList({ type, columns, fieldsOrder }: ListProps) {
   const [currentPage, setCurrentPage] = useState(1)
   const [items, setItems] = useState<any[]>([])
   const [isFetching, setIsFetching] = useState(true)
   const [nextPageItems, setNextPageItems] = useState([] as any[])
   const textRef = useRef<HTMLDivElement>(null)
-
+  const [columWidth, setColumWidth] = useState<number>()
   const { getLinkForDetails, fetchItems } = useList()
   const router = useRouter()
 
@@ -37,6 +37,9 @@ export function List({ type, columns, fieldsOrder }: ListProps) {
     setCurrentPage((state) => state - 1)
   }
 
+  useEffect(() => {
+    setColumWidth(100 / columns.length)
+  }, [])
   useEffect(() => {
     async function getCars() {
       try {
@@ -79,51 +82,60 @@ export function List({ type, columns, fieldsOrder }: ListProps) {
 
   return (
     <>
-      <div className="bg-gray-300 flex rounded-t-lg w-full justify-between ">
-        {columns.map((colum) => (
-          <div key={colum} className="text-center p-2 w-40">
-            {colum}
-          </div>
-        ))}
-      </div>
-      {isFetching ? (
-        <div className="bg-white h-[30rem] flex justify-center items-center">
-          <Loading />
-        </div>
-      ) : (
-        <div className="overflow-auto  h-[30rem] bg-white">
-          {items.length === 0 ? (
-            <div className="flex flex-col justify-center items-center h-full w-full">
-              <FolderNotchOpen color="#e2e8f0" size={60} />
-              <p className="text-gray-400 text-sm">
-                Não há carros para listar, crie um carro começar
-              </p>
-            </div>
-          ) : (
-            items.map((item) => {
-              return (
-                <div
-                  key={item.id}
-                  className="border-b-[1px] w-full flex  p-2 justify-between  bg-white cursor-pointer hover:bg-gray-200"
-                  onClick={() => handleClick(item.id)}
-                >
-                  {fieldsOrder.map((field) => (
-                    <div
-                      className="text-center p-2 w-40 whitespace-nowrap overflow-x-auto no-scrollbar"
-                      ref={textRef}
-                      key={field}
-                    >
-                      {item[field]}
-                    </div>
-                  ))}
-                </div>
-              )
-            })
-          )}
-        </div>
-      )}
+      <table className="w-full border-collapse">
+        <thead className="bg-gray-300 flex rounded-t-lg w-full justify-between ">
+          <tr className="w-full flex">
+            {columns.map((colum) => (
+              <th
+                key={colum}
+                className={`text-center p-2`}
+                style={{ width: `${columWidth}%` }}
+              >
+                {colum}
+              </th>
+            ))}
+          </tr>
+        </thead>
 
-      <div className="flex flex-row gap-2 items-center mt-4 justify-center">
+        {isFetching ? (
+          <div className="bg-white h-[30rem] flex justify-center items-center">
+            <Loading />
+          </div>
+        ) : (
+          <tbody className="overflow-auto  h-[30rem] bg-white">
+            {items.length === 0 ? (
+              <div className="flex flex-col justify-center items-center h-full w-full">
+                <FolderNotchOpen color="#e2e8f0" size={60} />
+                <p className="text-gray-400 text-sm">
+                  Não há carros para listar, crie um carro começar
+                </p>
+              </div>
+            ) : (
+              items.map((item) => {
+                return (
+                  <tr
+                    key={item.id}
+                    className="border-b-[1px] w-full flex  p-2   bg-white cursor-pointer hover:bg-gray-200"
+                    onClick={() => handleClick(item.id)}
+                  >
+                    {fieldsOrder.map((field) => (
+                      <td
+                        className={`text-center p-2  whitespace-nowrap overflow-x-auto no-scrollbar`}
+                        style={{ width: `${columWidth}%` }}
+                        key={field}
+                      >
+                        {item[field]}
+                      </td>
+                    ))}
+                  </tr>
+                )
+              })
+            )}
+          </tbody>
+        )}
+      </table>
+
+      <div className="flex flex-row gap-2 items-center mt-4 justify-center w-full">
         <CaretLeft
           fill="#000000"
           width={20}
