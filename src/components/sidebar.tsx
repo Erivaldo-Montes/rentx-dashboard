@@ -8,11 +8,9 @@ import { EngineSvg } from '../components/icons/engine'
 import { StatisticSvg } from '../components/icons/statistic'
 import { useSidebar } from '@/hooks/useSidebar'
 import { useEffect, useRef, useState } from 'react'
-import { X } from '@phosphor-icons/react'
 
 export function Sidebar() {
   const pathname = usePathname()
-  const [screenWidth, setScreenWidth] = useState<number>(0)
 
   const { isShowSidebar, showSidebar } = useSidebar()
   const sidebarRef = useRef<HTMLDivElement>(null)
@@ -21,10 +19,8 @@ export function Sidebar() {
   useEffect(() => {
     if (window.screen.width < 768) {
       if (isShowSidebar) {
-        console.log('block')
         blockScroll()
       } else {
-        console.log('unblock')
         unblockScroll()
       }
     }

@@ -2,7 +2,7 @@
 import Image from 'next/image'
 import { useSession } from 'next-auth/react'
 import { useSidebar } from '@/hooks/useSidebar'
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 
 export function Header() {
   const { data: session } = useSession()
@@ -10,14 +10,14 @@ export function Header() {
   const iconRef = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
 
-  const { showSidebar, sidebarWidth, isShowSidebar } = useSidebar()
+  const { showSidebar, isShowSidebar } = useSidebar()
   function handleToggleMenu() {
     if (checkboxRef.current) {
       const isChecked = checkboxRef.current.checked
-      showSidebar(isChecked)
       checkboxRef.current.checked = !isChecked
+      showSidebar(isChecked)
       if (iconRef.current) {
-        iconRef.current.className = isChecked ? 'icon-close' : 'icon-menu'
+        iconRef.current.className = !isShowSidebar ? 'icon-close' : 'icon-menu'
       }
     }
   }

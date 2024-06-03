@@ -7,6 +7,20 @@ import { useRouter } from 'next/navigation'
 import { Loading } from './loading'
 import { useList } from '@/hooks/useList'
 import { ListType } from '@/utils/types/list'
+import styled, { css } from 'styled-components'
+
+const StyleTd = styled.td<{ $content: string; $isShow: boolean }>`
+  ${({ $content, $isShow }) =>
+    $isShow
+      ? css`
+          &::before {
+            content: '${$content}';
+            width: 40%;
+            display: inline-block;
+          }
+        `
+      : null}
+`
 
 interface ListProps {
   type: keyof typeof ListType
@@ -19,10 +33,11 @@ export function TableList({ type, columns, fieldsOrder }: ListProps) {
   const [items, setItems] = useState<any[]>([])
   const [isFetching, setIsFetching] = useState(true)
   const [nextPageItems, setNextPageItems] = useState([] as any[])
-  const textRef = useRef<HTMLDivElement>(null)
   const [columWidth, setColumWidth] = useState<number>()
+  const [mobileTable, setMobileTable] = useState<boolean>()
   const { getLinkForDetails, fetchItems } = useList()
   const router = useRouter()
+  const textRef = useRef<HTMLDivElement>(null)
 
   function handleClick(id: string) {
     const link = getLinkForDetails({ id, type })
@@ -38,8 +53,21 @@ export function TableList({ type, columns, fieldsOrder }: ListProps) {
   }
 
   useEffect(() => {
-    setColumWidth(100 / columns.length)
-  }, [])
+    function handleResize() {
+      if (window.screen.width < 768) {
+        setMobileTable(true)
+        console.log(mobileTable)
+      } else {
+        setMobileTable(false)
+      }
+      setColumWidth(100 / columns.length)
+    }
+
+    window.addEventListener('resize', handleResize)
+
+    return () => window.removeEventListener('resize', handleResize)
+  }, [columns.length])
+
   useEffect(() => {
     async function getCars() {
       try {
@@ -83,7 +111,7 @@ export function TableList({ type, columns, fieldsOrder }: ListProps) {
   return (
     <>
       <table className="w-full border-collapse">
-        <thead className="bg-gray-300 flex rounded-t-lg w-full justify-between ">
+        <thead className="bg-gray-300 flex rounded-t-lg w-full justify-between max-md:hidden ">
           <tr className="w-full flex">
             {columns.map((colum) => (
               <th
@@ -115,17 +143,21 @@ export function TableList({ type, columns, fieldsOrder }: ListProps) {
                 return (
                   <tr
                     key={item.id}
-                    className="border-b-[1px] w-full flex  p-2   bg-white cursor-pointer hover:bg-gray-200"
+                    className="border-b-[1px]   flex max-md:flex-col p-2 bg-white cursor-pointer hover:bg-gray-200"
                     onClick={() => handleClick(item.id)}
                   >
-                    {fieldsOrder.map((field) => (
-                      <td
-                        className={`text-center p-2  whitespace-nowrap overflow-x-auto no-scrollbar`}
-                        style={{ width: `${columWidth}%` }}
+                    {fieldsOrder.map((field, index) => (
+                      <StyleTd
+                        $content={columns[index]}
+                        $isShow={mobileTable}
+                        className={`max-md:block text-center max-md:text-left  max-md: p-2 max-md:w-full  whitespace-nowrap overflow-x-auto no-scrollbar`}
                         key={field}
+                        style={{
+                          width: !mobileTable ? `${columWidth}%` : '100%',
+                        }}
                       >
                         {item[field]}
-                      </td>
+                      </StyleTd>
                     ))}
                   </tr>
                 )
