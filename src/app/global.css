@@ -42,7 +42,9 @@
 
 #icon-container {
   cursor: pointer;
-  display:block;
+  display:flex;
+  justify-items: center;
+  align-items: center;
   height: 30px;
   width: 30px;
 }

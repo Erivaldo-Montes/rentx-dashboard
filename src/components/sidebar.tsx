@@ -7,7 +7,7 @@ import { UserSvg } from '../components/icons/user'
 import { EngineSvg } from '../components/icons/engine'
 import { StatisticSvg } from '../components/icons/statistic'
 import { useSidebar } from '@/hooks/useSidebar'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 
 export function Sidebar() {
   const pathname = usePathname()
@@ -24,7 +24,7 @@ export function Sidebar() {
         unblockScroll()
       }
     }
-    function preventDefault(e) {
+    function preventDefault(e: Event) {
       e.preventDefault()
     }
 

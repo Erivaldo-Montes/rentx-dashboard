@@ -33,7 +33,6 @@ export function TableList({ type, columns, fieldsOrder }: ListProps) {
   const [items, setItems] = useState<any[]>([])
   const [isFetching, setIsFetching] = useState(true)
   const [nextPageItems, setNextPageItems] = useState([] as any[])
-  const [columWidth, setColumWidth] = useState<number>()
   const [mobileTable, setMobileTable] = useState<boolean>()
   const { getLinkForDetails, fetchItems } = useList()
   const router = useRouter()
@@ -60,13 +59,12 @@ export function TableList({ type, columns, fieldsOrder }: ListProps) {
       } else {
         setMobileTable(false)
       }
-      setColumWidth(100 / columns.length)
     }
 
     window.addEventListener('resize', handleResize)
 
     return () => window.removeEventListener('resize', handleResize)
-  }, [columns.length])
+  }, [])
 
   useEffect(() => {
     async function getCars() {
@@ -117,7 +115,7 @@ export function TableList({ type, columns, fieldsOrder }: ListProps) {
               <th
                 key={colum}
                 className={`text-center p-2`}
-                style={{ width: `${columWidth}%` }}
+                style={{ width: `${100 / columns.length}%` }}
               >
                 {colum}
               </th>
@@ -129,40 +127,40 @@ export function TableList({ type, columns, fieldsOrder }: ListProps) {
           <div className="bg-white h-[30rem] flex justify-center items-center">
             <Loading />
           </div>
+        ) : items.length === 0 ? (
+          <div className="flex flex-col justify-center items-center h-[30rem] bg-white w-full">
+            <FolderNotchOpen color="#e2e8f0" size={60} />
+            <p className="text-gray-400 text-sm">
+              Não há carros para listar, crie um carro começar
+            </p>
+          </div>
         ) : (
           <tbody className="overflow-auto  h-[30rem] bg-white">
-            {items.length === 0 ? (
-              <div className="flex flex-col justify-center items-center h-full w-full">
-                <FolderNotchOpen color="#e2e8f0" size={60} />
-                <p className="text-gray-400 text-sm">
-                  Não há carros para listar, crie um carro começar
-                </p>
-              </div>
-            ) : (
-              items.map((item) => {
-                return (
-                  <tr
-                    key={item.id}
-                    className="border-b-[1px]   flex max-md:flex-col p-2 bg-white cursor-pointer hover:bg-gray-200"
-                    onClick={() => handleClick(item.id)}
-                  >
-                    {fieldsOrder.map((field, index) => (
-                      <StyleTd
-                        $content={columns[index]}
-                        $isShow={mobileTable}
-                        className={`max-md:block text-center max-md:text-left  max-md: p-2 max-md:w-full  whitespace-nowrap overflow-x-auto no-scrollbar`}
-                        key={field}
-                        style={{
-                          width: !mobileTable ? `${columWidth}%` : '100%',
-                        }}
-                      >
-                        {item[field]}
-                      </StyleTd>
-                    ))}
-                  </tr>
-                )
-              })
-            )}
+            {items.map((item) => {
+              return (
+                <tr
+                  key={item.id}
+                  className="border-b-[1px]   flex max-md:flex-col p-2 bg-white cursor-pointer hover:bg-gray-200"
+                  onClick={() => handleClick(item.id)}
+                >
+                  {fieldsOrder.map((field, index) => (
+                    <StyleTd
+                      $content={columns[index]}
+                      $isShow={mobileTable}
+                      className={`max-md:block text-center max-md:text-left  max-md: p-2 max-md:w-full  whitespace-nowrap overflow-x-auto no-scrollbar`}
+                      key={field}
+                      style={{
+                        width: !mobileTable
+                          ? `${100 / columns.length}%`
+                          : '100%',
+                      }}
+                    >
+                      {item[field]}
+                    </StyleTd>
+                  ))}
+                </tr>
+              )
+            })}
           </tbody>
         )}
       </table>

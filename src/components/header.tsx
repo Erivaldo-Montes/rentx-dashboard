@@ -11,16 +11,39 @@ export function Header() {
   const menuRef = useRef<HTMLDivElement>(null)
 
   const { showSidebar, isShowSidebar } = useSidebar()
+
   function handleToggleMenu() {
+    console.log('header', isShowSidebar)
     if (checkboxRef.current) {
       const isChecked = checkboxRef.current.checked
+
       checkboxRef.current.checked = !isChecked
-      showSidebar(isChecked)
+
       if (iconRef.current) {
         iconRef.current.className = !isShowSidebar ? 'icon-close' : 'icon-menu'
+
+        if (iconRef.current.className === 'icon-close') {
+          showSidebar(true)
+        } else {
+          showSidebar(false)
+        }
       }
     }
   }
+
+  useEffect(() => {
+    function handleCloseSidebar() {
+      if (window.screen.width < 768) {
+        if (iconRef.current) {
+          iconRef.current.className = 'icon-menu'
+        }
+      }
+    }
+
+    window.addEventListener('resize', handleCloseSidebar)
+
+    return () => window.removeEventListener('resize', handleCloseSidebar)
+  }, [])
 
   return (
     <div className="bg-gray-100 flex flex-row items-center lg:px-[10rem] xl:px-[20rem] sm:px-[1rem] max-sm:px-[1rem] md:px-[10rem] w-full py-6 drop-shadow-lg">
@@ -29,7 +52,7 @@ export function Header() {
           id="container"
           onClick={handleToggleMenu}
           ref={menuRef}
-          className="mr-2"
+          className="mr-2  "
         >
           <input type="checkbox" id="checkbox" ref={checkboxRef} />
           <h1 id="icon-container">
